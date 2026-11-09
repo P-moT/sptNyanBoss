@@ -1,9 +1,9 @@
 {
   "enabled": true,
   "gearSourceBotType": "bossknight",
-  "bossZone": "BotZone",
-  "spawnChanceByMap": {
-    "factory4_day": 100,
-    "factory4_night": 100
+  "spawns": {
+    "bigmap": { "chance": 100, "zone": "ZoneScavBase" },
+    "factory4_day": { "chance": 0, "zone": "BotZone" },
+    "factory4_night": { "chance": 0, "zone": "BotZone" }
   }
 }

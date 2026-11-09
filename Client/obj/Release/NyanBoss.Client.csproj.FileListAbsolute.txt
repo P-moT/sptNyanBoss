@@ -8,3 +8,4 @@ C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.csproj.CoreCompileInputs.cache
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.dll
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.pdb
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.sourcelink.json

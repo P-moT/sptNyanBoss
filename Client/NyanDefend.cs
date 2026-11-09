@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Comfort.Common;
 using DrakiaXYZ.BigBrain.Brains;
 using EFT;
+using HarmonyLib;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.AI;
@@ -55,6 +57,44 @@ internal static class NyanPois
     {
         string map = Singleton<GameWorld>.Instance?.LocationId;
         return map != null && _byMap.TryGetValue(map, out List<NyanPoi> pois) ? pois : null;
+    }
+}
+
+// SAIN treats a bot as "in combat" while one of its layers is marked active, and in that state it switches off the game's
+// mover and blocks sprinting. It only clears the mark from its own layers' IsActive, which stops being called once a
+// higher priority layer like ours takes over, so it has to be cleared here or he freezes. Uses reflection so SAIN stays optional.
+internal class SainCombatFlag
+{
+    private static readonly MethodInfo GetSain = AccessTools.Method(AccessTools.TypeByName("SAIN.SAINEnableClass"), "GetSAIN");
+
+    private readonly object[] _args;
+    private object _component;
+    private PropertyInfo _activeLayer;
+    private object _none;
+
+    internal SainCombatFlag(BotOwner bot)
+    {
+        _args = new object[] { bot.ProfileId, null };
+    }
+
+    internal void Clear()
+    {
+        if (GetSain == null)
+        {
+            return;
+        }
+        if (_component == null)
+        {
+            GetSain.Invoke(null, _args);
+            _component = _args[1];
+            if (_component == null)
+            {
+                return; // SAIN may not have set this bot up yet, or may not manage him at all
+            }
+            _activeLayer = AccessTools.Property(_component.GetType(), "ActiveLayer");
+            _none = Enum.Parse(_activeLayer.PropertyType, "None");
+        }
+        _activeLayer.SetValue(_component, _none);
     }
 }
 
@@ -169,6 +209,7 @@ public class NyanPatrolLogic : CustomLogic
     private const float MaxLegSeconds = 15f; // Picks somewhere new if he gets stuck on the way
 
     private readonly NyanDefendState _state;
+    private readonly SainCombatFlag _sainCombatFlag;
     private Vector3 _target;
     private float _nextPick;
 
@@ -176,6 +217,7 @@ public class NyanPatrolLogic : CustomLogic
         : base(botOwner)
     {
         _state = NyanDefendState.For(botOwner);
+        _sainCombatFlag = new SainCombatFlag(botOwner);
     }
 
     public override void Start()
@@ -192,6 +234,7 @@ public class NyanPatrolLogic : CustomLogic
 
     public override void Update(CustomLayer.ActionData data)
     {
+        _sainCombatFlag.Clear();
         _state.RotateIfDue();
 
         BotOwner.SetPose(1f);

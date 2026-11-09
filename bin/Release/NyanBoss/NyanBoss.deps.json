@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "NyanBoss/0.3.1": {
+      "NyanBoss/0.4.0": {
         "dependencies": {
           "SPTarkov.Common": "4.1.2",
           "SPTarkov.DI": "4.1.2",
@@ -291,7 +291,7 @@
     }
   },
   "libraries": {
-    "NyanBoss/0.3.1": {
+    "NyanBoss/0.4.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

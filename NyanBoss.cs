@@ -20,7 +20,7 @@ public record ModMetadata : IModMetadata
     public string Name { get; init; } = "NyanBoss";
     public string Author { get; init; } = "P_moT";
     public List<string>? Contributors { get; init; }
-    public SemanticVersioning.Version Version { get; init; } = new("0.3.1");
+    public SemanticVersioning.Version Version { get; init; } = new("0.4.0");
     public SemanticVersioning.Range SptVersion { get; init; } = new("4.1.6");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
@@ -33,8 +33,13 @@ public class NyanBossConfig
 {
     public bool Enabled { get; set; } = true;
     public string GearSourceBotType { get; set; } = "bossknight";
-    public string BossZone { get; set; } = "BotZone";
-    public Dictionary<string, double> SpawnChanceByMap { get; set; } = new();
+    public Dictionary<string, NyanBossSpawn> Spawns { get; set; } = new();
+}
+
+public class NyanBossSpawn
+{
+    public double Chance { get; set; }
+    public string Zone { get; set; } = "";
 }
 
 // The boss borrows the "bossTest" role: the client already treats it as a boss, but vanilla ships no bot data for it and
@@ -72,8 +77,13 @@ public class NyanBossLoader(
 
         Dictionary<string, Location> locations = locationTable.GetDictionary();
         int added = 0;
-        foreach ((string map, double chance) in config.SpawnChanceByMap)
+        foreach ((string map, NyanBossSpawn spawn) in config.Spawns)
         {
+            if (spawn.Chance <= 0)
+            {
+                continue;
+            }
+
             if (!locations.TryGetValue(locationTable.GetMappedKey(map), out var location))
             {
                 logger.Warning($"[NyanBoss] Unknown map '{map}' in config, skipped");
@@ -83,8 +93,8 @@ public class NyanBossLoader(
             location.Base.BossLocationSpawn.Add(new BossLocationSpawn
             {
                 BossName = RoleName,
-                BossChance = chance,
-                BossZone = config.BossZone,
+                BossChance = spawn.Chance,
+                BossZone = spawn.Zone,
                 BossDifficulty = "normal",
                 BossEscortType = "followerBully",
                 BossEscortDifficulty = "normal",

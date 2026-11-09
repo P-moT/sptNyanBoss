@@ -63,6 +63,7 @@ internal static class NyanMusic
 internal class NyanMusicEmitter : MonoBehaviour
 {
     private const float LogInterval = 5f;
+    private const float VolumeScale = 0.5f; // Full volume is far too loud in raid, so the slider's whole range covers the usable half
 
     private static readonly float[] LogSamples = new float[1024];
 
@@ -111,7 +112,7 @@ internal class NyanMusicEmitter : MonoBehaviour
             return;
         }
 
-        _source.volume = Plugin.MusicVolume.Value;
+        _source.volume = Plugin.MusicVolume.Value * VolumeScale;
         _source.maxDistance = Plugin.MusicRange.Value;
         _source.outputAudioMixerGroup = Plugin.MusicBypassMixer.Value ? null : _mixer.Group;
         if (!_source.isPlaying)

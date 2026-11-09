@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 954 886" width="954" height="886" role="img" aria-labelledby="t d" font-family="system-ui,-apple-system,'Segoe UI',sans-serif">
+<title id="t">NyanBoss POIs on Customs</title>
+<desc id="d">Top-down plot in game coordinates of the two scav base patrol circles, Scav Base East at 260, -80 and Scav Base Centre at 200, -135, each 60 metres in radius, with spawn points from the game data.</desc>
+<style>
+svg{--surface:#fcfcfb;--text1:#0b0b0b;--text2:#52514e;--grid:#e6e5e0;--other:#a3a29b;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a}
+@media (prefers-color-scheme:dark){svg{--surface:#1a1a19;--text1:#f0efec;--text2:#c3c2b7;--grid:#333331;--other:#7c7b74;--s1:#3987e5;--s2:#d95926;--s3:#199e70}}
+.bg{fill:var(--surface)}.grid{stroke:var(--grid);stroke-width:1}
+.h1{fill:var(--text1);font-size:18px;font-weight:600}.sub,.ax,.zone,.leg{fill:var(--text2)}.sub{font-size:13px}.ax{font-size:11px}.zone{font-size:12px}.leg{font-size:12px}
+.poi{fill:var(--text1);font-size:13px;font-weight:600}.poisub{fill:var(--text2);font-size:11px}
+.halo{paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.other{fill:var(--other);stroke:var(--surface);stroke-width:1.5}
+.player{fill:none;stroke:var(--text2);stroke-width:1.5}
+.boss{fill:var(--s3);stroke:var(--surface);stroke-width:2}.nonboss{fill:var(--surface);stroke:var(--s3);stroke-width:2}
+.hit{fill:transparent}
+</style>
+<rect class="bg" width="954" height="886"/>
+<text class="h1" x="56" y="28">NyanBoss patrol circles on Customs</text>
+<text class="sub" x="56" y="48">Spawn data from SPT 4.1.6 (bigmap). Positions are game coordinates, so this may not match the orientation of a printed map.</text>
+<line class="grid" x1="122.0" x2="122.0" y1="112" y2="838.0"/><text class="ax" x="122.0" y="856.0" text-anchor="middle">0</text>
+<line class="grid" x1="287.0" x2="287.0" y1="112" y2="838.0"/><text class="ax" x="287.0" y="856.0" text-anchor="middle">100</text>
+<line class="grid" x1="452.0" x2="452.0" y1="112" y2="838.0"/><text class="ax" x="452.0" y="856.0" text-anchor="middle">200</text>
+<line class="grid" x1="617.0" x2="617.0" y1="112" y2="838.0"/><text class="ax" x="617.0" y="856.0" text-anchor="middle">300</text>
+<line class="grid" x1="782.0" x2="782.0" y1="112" y2="838.0"/><text class="ax" x="782.0" y="856.0" text-anchor="middle">400</text>
+<line class="grid" x1="56" x2="930.5" y1="796.8" y2="796.8"/><text class="ax" x="48" y="800.8" text-anchor="end">-200</text>
+<line class="grid" x1="56" x2="930.5" y1="631.8" y2="631.8"/><text class="ax" x="48" y="635.8" text-anchor="end">-100</text>
+<line class="grid" x1="56" x2="930.5" y1="466.8" y2="466.8"/><text class="ax" x="48" y="470.8" text-anchor="end">0</text>
+<line class="grid" x1="56" x2="930.5" y1="301.8" y2="301.8"/><text class="ax" x="48" y="305.8" text-anchor="end">100</text>
+<line class="grid" x1="56" x2="930.5" y1="136.8" y2="136.8"/><text class="ax" x="48" y="140.8" text-anchor="end">200</text>
+<text class="ax" x="930.5" y="874.0" text-anchor="end">X (metres)</text><text class="ax" x="48" y="104" text-anchor="end">Z</text>
+<circle cx="551.0" cy="598.8" r="123.8" fill="none" stroke="var(--s1)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".7"/>
+<circle cx="551.0" cy="598.8" r="99.0" fill="var(--s1)" fill-opacity=".14" stroke="var(--s1)" stroke-width="2"><title>Scav Base East: centre 260, -80, radius 60 m</title></circle>
+<circle cx="452.0" cy="689.5" r="123.8" fill="none" stroke="var(--s2)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".7"/>
+<circle cx="452.0" cy="689.5" r="99.0" fill="var(--s2)" fill-opacity=".14" stroke="var(--s2)" stroke-width="2"><title>Scav Base Centre: centre 200, -135, radius 60 m</title></circle>
+<g><circle class="other" cx="721.2" cy="647.0" r="3.5"/><circle class="hit" cx="721.2" cy="647.0" r="9"/><title>ZoneFactoryCenter: 363, -109</title></g>
+<g><circle class="other" cx="432.3" cy="469.0" r="3.5"/><circle class="hit" cx="432.3" cy="469.0" r="9"/><title>ZoneCrossRoad: 188, -1</title></g>
+<g><circle class="other" cx="222.1" cy="578.4" r="3.5"/><circle class="hit" cx="222.1" cy="578.4" r="9"/><title>ZoneTankSquare: 61, -68</title></g>
+<g><circle class="other" cx="171.2" cy="515.4" r="3.5"/><circle class="hit" cx="171.2" cy="515.4" r="9"/><title>ZoneBrige: 30, -29</title></g>
+<g><circle class="other" cx="420.8" cy="173.0" r="3.5"/><circle class="hit" cx="420.8" cy="173.0" r="9"/><title>ZoneDormitory: 181, 178</title></g>
+<g><circle class="other" cx="208.8" cy="553.8" r="3.5"/><circle class="hit" cx="208.8" cy="553.8" r="9"/><title>ZoneTankSquare: 53, -53</title></g>
+<g><circle class="other" cx="815.8" cy="429.5" r="3.5"/><circle class="hit" cx="815.8" cy="429.5" r="9"/><title>ZoneGasStation: 420, 23</title></g>
+<g><circle class="other" cx="178.4" cy="548.5" r="3.5"/><circle class="hit" cx="178.4" cy="548.5" r="9"/><title>ZoneBrige: 34, -50</title></g>
+<g><circle class="other" cx="131.7" cy="616.1" r="3.5"/><circle class="hit" cx="131.7" cy="616.1" r="9"/><title>ZoneWade: 6, -91</title></g>
+<g><circle class="other" cx="768.6" cy="609.0" r="3.5"/><circle class="hit" cx="768.6" cy="609.0" r="9"/><title>ZoneFactoryCenter: 392, -86</title></g>
+<g><circle class="other" cx="286.2" cy="576.7" r="3.5"/><circle class="hit" cx="286.2" cy="576.7" r="9"/><title>ZoneTankSquare: 100, -67</title></g>
+<g><circle class="other" cx="156.7" cy="647.4" r="3.5"/><circle class="hit" cx="156.7" cy="647.4" r="9"/><title>ZoneWade: 21, -109</title></g>
+<g><circle class="other" cx="410.2" cy="214.8" r="3.5"/><circle class="hit" cx="410.2" cy="214.8" r="9"/><title>ZoneDormitory: 175, 153</title></g>
+<g><circle class="other" cx="474.4" cy="463.5" r="3.5"/><circle class="hit" cx="474.4" cy="463.5" r="9"/><title>ZoneCrossRoad: 214, 2</title></g>
+<g><circle class="other" cx="211.2" cy="578.5" r="3.5"/><circle class="hit" cx="211.2" cy="578.5" r="9"/><title>ZoneTankSquare: 54, -68</title></g>
+<g><circle class="other" cx="801.1" cy="466.6" r="3.5"/><circle class="hit" cx="801.1" cy="466.6" r="9"/><title>ZoneGasStation: 412, 0</title></g>
+<g><circle class="other" cx="154.0" cy="575.8" r="3.5"/><circle class="hit" cx="154.0" cy="575.8" r="9"/><title>ZoneBrige: 19, -66</title></g>
+<g><circle class="other" cx="153.9" cy="406.6" r="3.5"/><circle class="hit" cx="153.9" cy="406.6" r="9"/><title>ZoneBrige: 19, 36</title></g>
+<g><circle class="other" cx="639.3" cy="785.4" r="3.5"/><circle class="hit" cx="639.3" cy="785.4" r="9"/><title>ZoneOldAZS: 314, -193</title></g>
+<g><circle class="other" cx="832.8" cy="376.2" r="3.5"/><circle class="hit" cx="832.8" cy="376.2" r="9"/><title>ZoneGasStation: 431, 55</title></g>
+<g><circle class="other" cx="899.5" cy="556.3" r="3.5"/><circle class="hit" cx="899.5" cy="556.3" r="9"/><title>ZoneFactoryCenter: 471, -54</title></g>
+<g><circle class="other" cx="132.7" cy="623.6" r="3.5"/><circle class="hit" cx="132.7" cy="623.6" r="9"/><title>ZoneWade: 6, -95</title></g>
+<g><circle class="other" cx="237.1" cy="576.2" r="3.5"/><circle class="hit" cx="237.1" cy="576.2" r="9"/><title>ZoneTankSquare: 70, -66</title></g>
+<g><circle class="other" cx="93.6" cy="699.3" r="3.5"/><circle class="hit" cx="93.6" cy="699.3" r="9"/><title>ZoneWade: -17, -141</title></g>
+<g><circle class="other" cx="818.8" cy="306.4" r="3.5"/><circle class="hit" cx="818.8" cy="306.4" r="9"/><title>ZoneGasStation: 422, 97</title></g>
+<g><circle class="other" cx="483.8" cy="142.7" r="3.5"/><circle class="hit" cx="483.8" cy="142.7" r="9"/><title>ZoneCrossRoad: 219, 196</title></g>
+<g><circle class="other" cx="608.7" cy="731.1" r="3.5"/><circle class="hit" cx="608.7" cy="731.1" r="9"/><title>ZoneOldAZS: 295, -160</title></g>
+<g><circle class="other" cx="540.8" cy="498.8" r="3.5"/><circle class="hit" cx="540.8" cy="498.8" r="9"/><title>ZoneSnipeTower: 254, -19</title></g>
+<g><circle class="other" cx="224.6" cy="567.3" r="3.5"/><circle class="hit" cx="224.6" cy="567.3" r="9"/><title>ZoneTankSquare: 62, -61</title></g>
+<g><circle class="other" cx="208.4" cy="565.6" r="3.5"/><circle class="hit" cx="208.4" cy="565.6" r="9"/><title>ZoneTankSquare: 52, -60</title></g>
+<g><circle class="other" cx="199.1" cy="258.6" r="3.5"/><circle class="hit" cx="199.1" cy="258.6" r="9"/><title>ZoneBrige: 47, 126</title></g>
+<g><circle class="other" cx="860.3" cy="283.5" r="3.5"/><circle class="hit" cx="860.3" cy="283.5" r="9"/><title>ZoneGasStation: 447, 111</title></g>
+<g><circle class="other" cx="243.4" cy="571.5" r="3.5"/><circle class="hit" cx="243.4" cy="571.5" r="9"/><title>ZoneTankSquare: 74, -63</title></g>
+<g><circle class="other" cx="662.2" cy="635.4" r="3.5"/><circle class="hit" cx="662.2" cy="635.4" r="9"/><title>ZoneFactoryCenter: 327, -102</title></g>
+<g><circle class="other" cx="872.4" cy="366.0" r="3.5"/><circle class="hit" cx="872.4" cy="366.0" r="9"/><title>ZoneGasStation: 455, 61</title></g>
+<g><circle class="other" cx="292.3" cy="583.3" r="3.5"/><circle class="hit" cx="292.3" cy="583.3" r="9"/><title>ZoneTankSquare: 103, -71</title></g>
+<g><circle class="other" cx="155.1" cy="657.3" r="3.5"/><circle class="hit" cx="155.1" cy="657.3" r="9"/><title>ZoneWade: 20, -115</title></g>
+<g><circle class="other" cx="405.6" cy="182.6" r="3.5"/><circle class="hit" cx="405.6" cy="182.6" r="9"/><title>ZoneDormitory: 172, 172</title></g>
+<g><circle class="other" cx="225.2" cy="577.1" r="3.5"/><circle class="hit" cx="225.2" cy="577.1" r="9"/><title>ZoneTankSquare: 63, -67</title></g>
+<g><circle class="other" cx="907.6" cy="585.3" r="3.5"/><circle class="hit" cx="907.6" cy="585.3" r="9"/><title>ZoneSnipeFactory: 476, -72</title></g>
+<g><circle class="other" cx="131.6" cy="637.3" r="3.5"/><circle class="hit" cx="131.6" cy="637.3" r="9"/><title>ZoneWade: 6, -103</title></g>
+<g><circle class="other" cx="319.5" cy="523.0" r="3.5"/><circle class="hit" cx="319.5" cy="523.0" r="9"/><title>ZoneTankSquare: 120, -34</title></g>
+<g><circle class="other" cx="655.4" cy="629.2" r="3.5"/><circle class="hit" cx="655.4" cy="629.2" r="9"/><title>ZoneFactoryCenter: 323, -98</title></g>
+<g><circle class="other" cx="887.3" cy="660.5" r="3.5"/><circle class="hit" cx="887.3" cy="660.5" r="9"/><title>ZoneFactoryCenter: 464, -117</title></g>
+<g><circle class="other" cx="710.3" cy="506.7" r="3.5"/><circle class="hit" cx="710.3" cy="506.7" r="9"/><title>ZoneFactoryCenter: 357, -24</title></g>
+<g><circle class="other" cx="153.9" cy="647.0" r="3.5"/><circle class="hit" cx="153.9" cy="647.0" r="9"/><title>ZoneBrige: 19, -109</title></g>
+<g><circle class="other" cx="436.7" cy="176.6" r="3.5"/><circle class="hit" cx="436.7" cy="176.6" r="9"/><title>ZoneDormitory: 191, 176</title></g>
+<g><circle class="other" cx="265.6" cy="564.4" r="3.5"/><circle class="hit" cx="265.6" cy="564.4" r="9"/><title>ZoneTankSquare: 87, -59</title></g>
+<g><circle class="other" cx="231.0" cy="578.2" r="3.5"/><circle class="hit" cx="231.0" cy="578.2" r="9"/><title>ZoneTankSquare: 66, -68</title></g>
+<g><circle class="other" cx="428.0" cy="165.1" r="3.5"/><circle class="hit" cx="428.0" cy="165.1" r="9"/><title>ZoneDormitory: 185, 183</title></g>
+<g><circle class="other" cx="235.5" cy="574.3" r="3.5"/><circle class="hit" cx="235.5" cy="574.3" r="9"/><title>ZoneTankSquare: 69, -65</title></g>
+<g><circle class="other" cx="231.0" cy="540.6" r="3.5"/><circle class="hit" cx="231.0" cy="540.6" r="9"/><title>ZoneTankSquare: 66, -45</title></g>
+<g><circle class="other" cx="103.7" cy="256.3" r="3.5"/><circle class="hit" cx="103.7" cy="256.3" r="9"/><title>ZoneBrige: -11, 128</title></g>
+<g><circle class="other" cx="603.0" cy="746.3" r="3.5"/><circle class="hit" cx="603.0" cy="746.3" r="9"/><title>ZoneOldAZS: 292, -169</title></g>
+<g><circle class="other" cx="813.1" cy="373.2" r="3.5"/><circle class="hit" cx="813.1" cy="373.2" r="9"/><title>ZoneGasStation: 419, 57</title></g>
+<g><circle class="other" cx="406.8" cy="207.1" r="3.5"/><circle class="hit" cx="406.8" cy="207.1" r="9"/><title>ZoneDormitory: 173, 157</title></g>
+<g><circle class="other" cx="821.3" cy="396.9" r="3.5"/><circle class="hit" cx="821.3" cy="396.9" r="9"/><title>ZoneGasStation: 424, 42</title></g>
+<g><circle class="other" cx="298.8" cy="545.8" r="3.5"/><circle class="hit" cx="298.8" cy="545.8" r="9"/><title>ZoneSnipeBrige: 107, -48</title></g>
+<g><circle class="other" cx="289.4" cy="430.3" r="3.5"/><circle class="hit" cx="289.4" cy="430.3" r="9"/><title>ZoneTankSquare: 101, 22</title></g>
+<g><circle class="other" cx="167.5" cy="256.8" r="3.5"/><circle class="hit" cx="167.5" cy="256.8" r="9"/><title>ZoneBrige: 28, 127</title></g>
+<g><circle class="other" cx="926.6" cy="398.9" r="3.5"/><circle class="hit" cx="926.6" cy="398.9" r="9"/><title>ZoneBlockPost: 488, 41</title></g>
+<g><circle class="other" cx="416.7" cy="167.6" r="3.5"/><circle class="hit" cx="416.7" cy="167.6" r="9"/><title>ZoneDormitory: 179, 181</title></g>
+<g><circle class="other" cx="70.9" cy="258.5" r="3.5"/><circle class="hit" cx="70.9" cy="258.5" r="9"/><title>ZoneBrige: -31, 126</title></g>
+<g><circle class="other" cx="406.6" cy="477.1" r="3.5"/><circle class="hit" cx="406.6" cy="477.1" r="9"/><title>ZoneTankSquare: 173, -6</title></g>
+<g><circle class="other" cx="282.4" cy="537.2" r="3.5"/><circle class="hit" cx="282.4" cy="537.2" r="9"/><title>ZoneTankSquare: 97, -43</title></g>
+<g><circle class="other" cx="766.7" cy="611.3" r="3.5"/><circle class="hit" cx="766.7" cy="611.3" r="9"/><title>ZoneFactoryCenter: 391, -88</title></g>
+<g><circle class="other" cx="222.8" cy="567.1" r="3.5"/><circle class="hit" cx="222.8" cy="567.1" r="9"/><title>ZoneTankSquare: 61, -61</title></g>
+<g><circle class="other" cx="217.2" cy="528.6" r="3.5"/><circle class="hit" cx="217.2" cy="528.6" r="9"/><title>ZoneTankSquare: 58, -38</title></g>
+<g><circle class="other" cx="308.5" cy="563.4" r="3.5"/><circle class="hit" cx="308.5" cy="563.4" r="9"/><title>ZoneTankSquare: 113, -59</title></g>
+<g><circle class="other" cx="356.3" cy="491.5" r="3.5"/><circle class="hit" cx="356.3" cy="491.5" r="9"/><title>ZoneTankSquare: 142, -15</title></g>
+<g><circle class="other" cx="724.5" cy="646.4" r="3.5"/><circle class="hit" cx="724.5" cy="646.4" r="9"/><title>ZoneFactoryCenter: 365, -109</title></g>
+<g><circle class="other" cx="681.9" cy="781.5" r="3.5"/><circle class="hit" cx="681.9" cy="781.5" r="9"/><title>ZoneOldAZS: 339, -191</title></g>
+<g><circle class="other" cx="639.8" cy="782.8" r="3.5"/><circle class="hit" cx="639.8" cy="782.8" r="9"/><title>ZoneOldAZS: 314, -192</title></g>
+<g><circle class="other" cx="323.7" cy="540.7" r="3.5"/><circle class="hit" cx="323.7" cy="540.7" r="9"/><title>ZoneTankSquare: 122, -45</title></g>
+<g><circle class="other" cx="322.9" cy="537.6" r="3.5"/><circle class="hit" cx="322.9" cy="537.6" r="9"/><title>ZoneTankSquare: 122, -43</title></g>
+<g><circle class="other" cx="323.3" cy="253.4" r="3.5"/><circle class="hit" cx="323.3" cy="253.4" r="9"/><title>ZoneDormitory: 122, 129</title></g>
+<g><circle class="other" cx="871.6" cy="601.3" r="3.5"/><circle class="hit" cx="871.6" cy="601.3" r="9"/><title>ZoneFactoryCenter: 454, -82</title></g>
+<g><circle class="other" cx="411.2" cy="475.6" r="3.5"/><circle class="hit" cx="411.2" cy="475.6" r="9"/><title>ZoneCrossRoad: 175, -5</title></g>
+<g><circle class="other" cx="240.0" cy="576.6" r="3.5"/><circle class="hit" cx="240.0" cy="576.6" r="9"/><title>ZoneTankSquare: 71, -67</title></g>
+<g><circle class="other" cx="291.1" cy="535.0" r="3.5"/><circle class="hit" cx="291.1" cy="535.0" r="9"/><title>ZoneTankSquare: 102, -41</title></g>
+<g><circle class="other" cx="893.2" cy="367.7" r="3.5"/><circle class="hit" cx="893.2" cy="367.7" r="9"/><title>ZoneGasStation: 467, 60</title></g>
+<g><circle class="other" cx="307.7" cy="559.9" r="3.5"/><circle class="hit" cx="307.7" cy="559.9" r="9"/><title>ZoneTankSquare: 113, -56</title></g>
+<g><circle class="other" cx="634.7" cy="725.8" r="3.5"/><circle class="hit" cx="634.7" cy="725.8" r="9"/><title>ZoneOldAZS: 311, -157</title></g>
+<g><circle class="other" cx="800.0" cy="651.6" r="3.5"/><circle class="hit" cx="800.0" cy="651.6" r="9"/><title>ZoneFactoryCenter: 411, -112</title></g>
+<g><circle class="other" cx="437.9" cy="470.9" r="3.5"/><circle class="hit" cx="437.9" cy="470.9" r="9"/><title>ZoneCrossRoad: 191, -3</title></g>
+<g><circle class="other" cx="495.6" cy="266.6" r="3.5"/><circle class="hit" cx="495.6" cy="266.6" r="9"/><title>ZoneCrossRoad: 226, 121</title></g>
+<g><circle class="other" cx="270.4" cy="543.5" r="3.5"/><circle class="hit" cx="270.4" cy="543.5" r="9"/><title>ZoneTankSquare: 90, -47</title></g>
+<g><circle class="other" cx="166.3" cy="565.8" r="3.5"/><circle class="hit" cx="166.3" cy="565.8" r="9"/><title>ZoneTankSquare: 27, -60</title></g>
+<g><circle class="other" cx="228.5" cy="541.4" r="3.5"/><circle class="hit" cx="228.5" cy="541.4" r="9"/><title>ZoneTankSquare: 65, -45</title></g>
+<g><circle class="other" cx="106.0" cy="256.1" r="3.5"/><circle class="hit" cx="106.0" cy="256.1" r="9"/><title>ZoneBrige: -10, 128</title></g>
+<g><polygon class="player" points="597.3,794.2 601.8,802.3 592.8,802.3"/><circle class="hit" cx="597.3" cy="798.7" r="9"/><title>player spawn: 288, -201</title></g>
+<g><polygon class="player" points="289.9,442.6 294.4,450.7 285.4,450.7"/><circle class="hit" cx="289.9" cy="447.1" r="9"/><title>player spawn: 102, 12</title></g>
+<g><polygon class="player" points="287.3,442.5 291.8,450.6 282.8,450.6"/><circle class="hit" cx="287.3" cy="447.0" r="9"/><title>player spawn: 100, 12</title></g>
+<g><polygon class="player" points="721.4,205.5 725.9,213.6 716.9,213.6"/><circle class="hit" cx="721.4" cy="210.0" r="9"/><title>player spawn: 363, 156</title></g>
+<g><polygon class="player" points="288.0,645.1 292.5,653.2 283.5,653.2"/><circle class="hit" cx="288.0" cy="649.6" r="9"/><title>player spawn: 101, -111</title></g>
+<g><polygon class="player" points="645.6,592.2 650.1,600.3 641.1,600.3"/><circle class="hit" cx="645.6" cy="596.7" r="9"/><title>player spawn: 317, -79</title></g>
+<g><polygon class="player" points="288.1,435.4 292.6,443.5 283.6,443.5"/><circle class="hit" cx="288.1" cy="439.9" r="9"/><title>player spawn: 101, 16</title></g>
+<g><polygon class="player" points="143.6,669.5 148.1,677.6 139.1,677.6"/><circle class="hit" cx="143.6" cy="674.0" r="9"/><title>player spawn: 13, -126</title></g>
+<g><polygon class="player" points="910.7,599.4 915.2,607.5 906.2,607.5"/><circle class="hit" cx="910.7" cy="603.9" r="9"/><title>player spawn: 478, -83</title></g>
+<g><polygon class="player" points="280.6,440.2 285.1,448.3 276.1,448.3"/><circle class="hit" cx="280.6" cy="444.7" r="9"/><title>player spawn: 96, 13</title></g>
+<g><polygon class="player" points="758.4,653.9 762.9,662.0 753.9,662.0"/><circle class="hit" cx="758.4" cy="658.4" r="9"/><title>player spawn: 386, -116</title></g>
+<g><polygon class="player" points="98.3,253.7 102.8,261.8 93.8,261.8"/><circle class="hit" cx="98.3" cy="258.2" r="9"/><title>player spawn: -14, 126</title></g>
+<g><polygon class="player" points="643.1,597.8 647.6,605.9 638.6,605.9"/><circle class="hit" cx="643.1" cy="602.3" r="9"/><title>player spawn: 316, -82</title></g>
+<g><polygon class="player" points="912.1,593.0 916.6,601.1 907.6,601.1"/><circle class="hit" cx="912.1" cy="597.5" r="9"/><title>player spawn: 479, -79</title></g>
+<g><polygon class="player" points="289.3,433.1 293.8,441.2 284.8,441.2"/><circle class="hit" cx="289.3" cy="437.6" r="9"/><title>player spawn: 101, 18</title></g>
+<g><polygon class="player" points="289.6,430.9 294.1,439.0 285.1,439.0"/><circle class="hit" cx="289.6" cy="435.4" r="9"/><title>player spawn: 102, 19</title></g>
+<g><polygon class="player" points="603.2,787.5 607.7,795.6 598.7,795.6"/><circle class="hit" cx="603.2" cy="792.0" r="9"/><title>player spawn: 292, -197</title></g>
+<g><polygon class="player" points="768.1,656.5 772.6,664.6 763.6,664.6"/><circle class="hit" cx="768.1" cy="661.0" r="9"/><title>player spawn: 392, -118</title></g>
+<g><polygon class="player" points="118.8,252.8 123.3,260.9 114.3,260.9"/><circle class="hit" cx="118.8" cy="257.3" r="9"/><title>player spawn: -2, 127</title></g>
+<g><polygon class="player" points="607.6,785.2 612.1,793.3 603.1,793.3"/><circle class="hit" cx="607.6" cy="789.7" r="9"/><title>player spawn: 294, -196</title></g>
+<g><polygon class="player" points="914.9,596.7 919.4,604.8 910.4,604.8"/><circle class="hit" cx="914.9" cy="601.2" r="9"/><title>player spawn: 481, -81</title></g>
+<g><polygon class="player" points="640.3,611.9 644.8,620.0 635.8,620.0"/><circle class="hit" cx="640.3" cy="616.4" r="9"/><title>player spawn: 314, -91</title></g>
+<g><polygon class="player" points="280.3,443.0 284.8,451.1 275.8,451.1"/><circle class="hit" cx="280.3" cy="447.5" r="9"/><title>player spawn: 96, 12</title></g>
+<g><polygon class="player" points="696.9,210.1 701.4,218.2 692.4,218.2"/><circle class="hit" cx="696.9" cy="214.6" r="9"/><title>player spawn: 348, 153</title></g>
+<g><polygon class="player" points="294.0,431.3 298.5,439.4 289.5,439.4"/><circle class="hit" cx="294.0" cy="435.8" r="9"/><title>player spawn: 104, 19</title></g>
+<g><polygon class="player" points="148.3,671.6 152.8,679.7 143.8,679.7"/><circle class="hit" cx="148.3" cy="676.1" r="9"/><title>player spawn: 16, -127</title></g>
+<g><polygon class="player" points="914.4,601.6 918.9,609.7 909.9,609.7"/><circle class="hit" cx="914.4" cy="606.1" r="9"/><title>player spawn: 480, -84</title></g>
+<g><polygon class="player" points="745.2,616.3 749.7,624.4 740.7,624.4"/><circle class="hit" cx="745.2" cy="620.8" r="9"/><title>player spawn: 378, -93</title></g>
+<g><polygon class="player" points="740.9,608.8 745.4,616.9 736.4,616.9"/><circle class="hit" cx="740.9" cy="613.3" r="9"/><title>player spawn: 375, -89</title></g>
+<g><polygon class="player" points="283.8,639.2 288.3,647.3 279.3,647.3"/><circle class="hit" cx="283.8" cy="643.7" r="9"/><title>player spawn: 98, -107</title></g>
+<g><polygon class="player" points="773.6,600.9 778.1,609.0 769.1,609.0"/><circle class="hit" cx="773.6" cy="605.4" r="9"/><title>player spawn: 395, -84</title></g>
+<g><polygon class="player" points="296.1,433.6 300.6,441.7 291.6,441.7"/><circle class="hit" cx="296.1" cy="438.1" r="9"/><title>player spawn: 105, 17</title></g>
+<g><polygon class="player" points="709.1,211.3 713.6,219.4 704.6,219.4"/><circle class="hit" cx="709.1" cy="215.8" r="9"/><title>player spawn: 356, 152</title></g>
+<g><polygon class="player" points="747.3,655.0 751.8,663.1 742.8,663.1"/><circle class="hit" cx="747.3" cy="659.5" r="9"/><title>player spawn: 379, -117</title></g>
+<g><polygon class="player" points="136.3,673.1 140.8,681.2 131.8,681.2"/><circle class="hit" cx="136.3" cy="677.6" r="9"/><title>player spawn: 9, -128</title></g>
+<g><polygon class="player" points="729.9,610.9 734.4,619.0 725.4,619.0"/><circle class="hit" cx="729.9" cy="615.4" r="9"/><title>player spawn: 368, -90</title></g>
+<g><polygon class="player" points="97.7,261.6 102.2,269.7 93.2,269.7"/><circle class="hit" cx="97.7" cy="266.1" r="9"/><title>player spawn: -15, 122</title></g>
+<g><polygon class="player" points="285.7,431.0 290.2,439.1 281.2,439.1"/><circle class="hit" cx="285.7" cy="435.5" r="9"/><title>player spawn: 99, 19</title></g>
+<g><polygon class="player" points="270.7,630.6 275.2,638.7 266.2,638.7"/><circle class="hit" cx="270.7" cy="635.1" r="9"/><title>player spawn: 90, -102</title></g>
+<g><polygon class="player" points="762.9,650.9 767.4,659.0 758.4,659.0"/><circle class="hit" cx="762.9" cy="655.4" r="9"/><title>player spawn: 388, -114</title></g>
+<g><polygon class="player" points="763.7,622.6 768.2,630.7 759.2,630.7"/><circle class="hit" cx="763.7" cy="627.1" r="9"/><title>player spawn: 389, -97</title></g>
+<g><polygon class="player" points="294.7,438.6 299.2,446.7 290.2,446.7"/><circle class="hit" cx="294.7" cy="443.1" r="9"/><title>player spawn: 105, 14</title></g>
+<g><polygon class="player" points="281.4,637.5 285.9,645.6 276.9,645.6"/><circle class="hit" cx="281.4" cy="642.0" r="9"/><title>player spawn: 97, -106</title></g>
+<g><polygon class="player" points="773.6,661.4 778.1,669.5 769.1,669.5"/><circle class="hit" cx="773.6" cy="665.9" r="9"/><title>player spawn: 395, -121</title></g>
+<g><polygon class="player" points="290.6,429.4 295.1,437.5 286.1,437.5"/><circle class="hit" cx="290.6" cy="433.9" r="9"/><title>player spawn: 102, 20</title></g>
+<g><polygon class="player" points="286.4,438.1 290.9,446.2 281.9,446.2"/><circle class="hit" cx="286.4" cy="442.6" r="9"/><title>player spawn: 100, 15</title></g>
+<g><polygon class="player" points="915.7,593.0 920.2,601.1 911.2,601.1"/><circle class="hit" cx="915.7" cy="597.5" r="9"/><title>player spawn: 481, -79</title></g>
+<g><polygon class="player" points="86.9,272.0 91.4,280.1 82.4,280.1"/><circle class="hit" cx="86.9" cy="276.5" r="9"/><title>player spawn: -21, 115</title></g>
+<g><polygon class="player" points="153.0,671.9 157.5,680.0 148.5,680.0"/><circle class="hit" cx="153.0" cy="676.4" r="9"/><title>player spawn: 19, -127</title></g>
+<g><polygon class="player" points="290.8,435.4 295.3,443.5 286.3,443.5"/><circle class="hit" cx="290.8" cy="439.9" r="9"/><title>player spawn: 102, 16</title></g>
+<g><polygon class="player" points="611.3,793.2 615.8,801.3 606.8,801.3"/><circle class="hit" cx="611.3" cy="797.7" r="9"/><title>player spawn: 297, -201</title></g>
+<g><polygon class="player" points="283.9,442.5 288.4,450.6 279.4,450.6"/><circle class="hit" cx="283.9" cy="447.0" r="9"/><title>player spawn: 98, 12</title></g>
+<g><polygon class="player" points="292.4,437.0 296.9,445.1 287.9,445.1"/><circle class="hit" cx="292.4" cy="441.5" r="9"/><title>player spawn: 103, 15</title></g>
+<g><polygon class="player" points="643.0,592.8 647.5,600.9 638.5,600.9"/><circle class="hit" cx="643.0" cy="597.3" r="9"/><title>player spawn: 316, -79</title></g>
+<g><polygon class="player" points="89.4,275.3 93.9,283.4 84.9,283.4"/><circle class="hit" cx="89.4" cy="279.8" r="9"/><title>player spawn: -20, 113</title></g>
+<g><polygon class="player" points="598.8,785.9 603.3,794.0 594.3,794.0"/><circle class="hit" cx="598.8" cy="790.4" r="9"/><title>player spawn: 289, -196</title></g>
+<g><polygon class="player" points="281.3,433.9 285.8,442.0 276.8,442.0"/><circle class="hit" cx="281.3" cy="438.4" r="9"/><title>player spawn: 97, 17</title></g>
+<g><polygon class="player" points="725.0,216.0 729.5,224.1 720.5,224.1"/><circle class="hit" cx="725.0" cy="220.5" r="9"/><title>player spawn: 365, 149</title></g>
+<g><polygon class="player" points="294.4,435.0 298.9,443.1 289.9,443.1"/><circle class="hit" cx="294.4" cy="439.5" r="9"/><title>player spawn: 104, 17</title></g>
+<g><polygon class="player" points="272.6,635.4 277.1,643.5 268.1,643.5"/><circle class="hit" cx="272.6" cy="639.9" r="9"/><title>player spawn: 91, -105</title></g>
+<g><polygon class="player" points="155.7,668.2 160.2,676.3 151.2,676.3"/><circle class="hit" cx="155.7" cy="672.7" r="9"/><title>player spawn: 20, -125</title></g>
+<g><polygon class="player" points="715.9,207.6 720.4,215.7 711.4,215.7"/><circle class="hit" cx="715.9" cy="212.1" r="9"/><title>player spawn: 360, 154</title></g>
+<g><polygon class="player" points="293.0,442.8 297.5,450.9 288.5,450.9"/><circle class="hit" cx="293.0" cy="447.3" r="9"/><title>player spawn: 104, 12</title></g>
+<g><polygon class="player" points="641.5,615.9 646.0,624.0 637.0,624.0"/><circle class="hit" cx="641.5" cy="620.4" r="9"/><title>player spawn: 315, -93</title></g>
+<g><polygon class="player" points="282.7,439.3 287.2,447.4 278.2,447.4"/><circle class="hit" cx="282.7" cy="443.8" r="9"/><title>player spawn: 97, 14</title></g>
+<g><circle class="nonboss" cx="538.1" cy="645.7" r="5"/><circle class="hit" cx="538.1" cy="645.7" r="9"/><title>ZoneScavBase: 252, -108</title></g>
+<g><circle class="nonboss" cx="551.5" cy="617.0" r="5"/><circle class="hit" cx="551.5" cy="617.0" r="9"/><title>ZoneScavBase: 260, -91</title></g>
+<g><circle class="nonboss" cx="498.0" cy="609.3" r="5"/><circle class="hit" cx="498.0" cy="609.3" r="9"/><title>ZoneScavBase: 228, -86</title></g>
+<g><circle class="nonboss" cx="342.7" cy="602.1" r="5"/><circle class="hit" cx="342.7" cy="602.1" r="9"/><title>ZoneScavBase: 134, -82</title></g>
+<g><circle class="nonboss" cx="494.9" cy="600.0" r="5"/><circle class="hit" cx="494.9" cy="600.0" r="9"/><title>ZoneScavBase: 226, -81</title></g>
+<g><circle class="nonboss" cx="537.9" cy="647.5" r="5"/><circle class="hit" cx="537.9" cy="647.5" r="9"/><title>ZoneScavBase: 252, -110</title></g>
+<g><circle class="nonboss" cx="511.8" cy="623.7" r="5"/><circle class="hit" cx="511.8" cy="623.7" r="9"/><title>ZoneScavBase: 236, -95</title></g>
+<g><circle class="boss" cx="594.4" cy="553.1" r="5"/><circle class="hit" cx="594.4" cy="553.1" r="9"/><title>ZoneScavBase: 286, -52</title></g>
+<g><circle class="boss" cx="465.5" cy="659.6" r="5"/><circle class="hit" cx="465.5" cy="659.6" r="9"/><title>ZoneScavBase: 208, -117</title></g>
+<g><circle class="boss" cx="444.3" cy="674.9" r="5"/><circle class="hit" cx="444.3" cy="674.9" r="9"/><title>ZoneScavBase: 195, -126</title></g>
+<g><circle class="boss" cx="328.5" cy="707.9" r="5"/><circle class="hit" cx="328.5" cy="707.9" r="9"/><title>ZoneScavBase: 125, -146</title></g>
+<g><circle class="boss" cx="566.2" cy="558.5" r="5"/><circle class="hit" cx="566.2" cy="558.5" r="9"/><title>ZoneScavBase: 269, -56</title></g>
+<g><circle class="boss" cx="589.7" cy="582.3" r="5"/><circle class="hit" cx="589.7" cy="582.3" r="9"/><title>ZoneScavBase: 283, -70</title></g>
+<g><circle class="boss" cx="578.3" cy="560.9" r="5"/><circle class="hit" cx="578.3" cy="560.9" r="9"/><title>ZoneScavBase: 277, -57</title></g>
+<g><circle class="boss" cx="443.9" cy="747.5" r="5"/><circle class="hit" cx="443.9" cy="747.5" r="9"/><title>ZoneScavBase: 195, -170</title></g>
+<g><circle class="boss" cx="563.5" cy="590.8" r="5"/><circle class="hit" cx="563.5" cy="590.8" r="9"/><title>ZoneScavBase: 268, -75</title></g>
+<g><circle class="boss" cx="292.2" cy="655.9" r="5"/><circle class="hit" cx="292.2" cy="655.9" r="9"/><title>ZoneScavBase: 103, -115</title></g>
+<g><circle class="boss" cx="296.6" cy="655.1" r="5"/><circle class="hit" cx="296.6" cy="655.1" r="9"/><title>ZoneScavBase: 106, -114</title></g>
+<g><circle class="boss" cx="250.3" cy="645.1" r="5"/><circle class="hit" cx="250.3" cy="645.1" r="9"/><title>ZoneScavBase: 78, -108</title></g>
+<g><circle class="boss" cx="190.9" cy="703.7" r="5"/><circle class="hit" cx="190.9" cy="703.7" r="9"/><title>ZoneScavBase: 42, -144</title></g>
+<text class="zone halo" x="386.0" y="140.1" text-anchor="middle">Dorms (ZoneDormitory)</text>
+<text class="zone halo" x="443.8" y="446.9" text-anchor="middle">Crossroads</text>
+<text class="zone halo" x="836.4" y="265.4" text-anchor="middle">New Gas (ZoneGasStation)</text>
+<text class="zone halo" x="692.9" y="750.5" text-anchor="start">Old Gas (ZoneOldAZS)</text>
+<text class="zone halo" x="790.2" y="689.5" text-anchor="middle">Factory (ZoneFactoryCenter)</text>
+<text class="zone halo" x="262.2" y="503.0" text-anchor="middle">Tank Square</text>
+<text class="zone halo" x="130.2" y="602.0" text-anchor="middle">Wade</text>
+<text class="poi halo" x="666.5" y="499.8" text-anchor="start">Scav Base East</text><text class="poisub halo" x="666.5" y="514.8" text-anchor="start">260, -80 · 60 m radius</text>
+<text class="poi halo" x="303.5" y="816.5" text-anchor="middle">Scav Base Centre</text><text class="poisub halo" x="303.5" y="831.5" text-anchor="middle">200, -135 · 60 m radius</text>
+<g transform="translate(56,78)"><circle cx="4" r="5" fill="var(--s1)" fill-opacity=".14" stroke="var(--s1)" stroke-width="2"/><text class="leg" x="16" y="4">East</text></g>
+<g transform="translate(118,78)"><circle cx="4" r="5" fill="var(--s2)" fill-opacity=".14" stroke="var(--s2)" stroke-width="2"/><text class="leg" x="16" y="4">Centre</text></g>
+<g transform="translate(192,78)"><line x1="-3" x2="11" stroke="var(--text2)" stroke-width="1.5" stroke-dasharray="4 3"/><text class="leg" x="16" y="4">Returns past this (75 m)</text></g>
+<g transform="translate(368,78)"><circle class="boss" cx="4" r="5"/><text class="leg" x="16" y="4">Scav base: boss spawn</text></g>
+<g transform="translate(524,78)"><circle class="nonboss" cx="4" r="5"/><text class="leg" x="16" y="4">Scav base: other bot</text></g>
+<g transform="translate(670,78)"><circle class="other" cx="4" r="3.5"/><text class="leg" x="16" y="4">Other zones</text></g>
+<g transform="translate(768,78)"><polygon class="player" points="4,-4.5 8.5,3.6 -0.5,3.6"/><text class="leg" x="16" y="4">Player spawn</text></g>
+</svg>

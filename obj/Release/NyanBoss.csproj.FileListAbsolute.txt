@@ -22,3 +22,4 @@ C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\NyanBoss.dll
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\refint\NyanBoss.dll
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\NyanBoss.pdb
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\ref\NyanBoss.dll
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\NyanBoss.sourcelink.json

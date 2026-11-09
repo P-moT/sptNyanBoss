@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using DrakiaXYZ.BigBrain.Brains;
 using EFT;
 using HarmonyLib;
 using SPT.Reflection.Patching;
@@ -142,7 +143,15 @@ public class SpeedPatch : ModulePatch
 
         float actual = Vector2.Distance(new Vector2(position.x, position.z), new Vector2(sample.LastPosition.x, sample.LastPosition.z)) / sample.Time;
         float baseline = sample.BaseDistance / sample.Time;
-        Plugin.Log.LogInfo($"Speed: requested {baseline:F1} m/s, travelled {actual:F1} m/s, multiplier {Plugin.SpeedMultiplier.Value:F1}, state {context.CurrentState.Name}, limit {context.CharacterController.SpeedLimit:F1}");
+        BotOwner bot = player.AIData?.BotOwner;
+        NyanDefendState defend = bot != null ? NyanDefendState.For(bot) : null;
+        string area = defend != null && defend.HasPois
+            ? $", {defend.Current.Name} {Vector3.Distance(position, defend.Current.Position):F0}m away"
+            : string.Empty;
+        string enemy = bot?.Memory?.GoalEnemy is EnemyInfo goal
+            ? $"{goal.Person.Profile?.Nickname} {Vector3.Distance(position, goal.CurrPosition):F0}m away"
+            : "none";
+        Plugin.Log.LogInfo($"Speed: requested {baseline:F1} m/s, travelled {actual:F1} m/s, state {context.CurrentState.Name}, layer {(bot != null ? BrainManager.GetActiveLayerName(bot) : "unknown")}{area}, enemy {enemy}, path {bot?.Mover?.HasPathAndNoComplete}, sprint order {bot?.Mover?.Sprinting}, can sprint {player.Physical?.CanSprint}");
         sample.Time = 0f;
         sample.BaseDistance = 0f;
         sample.LastPosition = position;

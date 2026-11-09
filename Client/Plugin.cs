@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace NyanBoss.Client;
 
-[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.3.1")]
+[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.4.0")]
 [BepInDependency("com.SPT.core", "4.1.0")]
 [BepInDependency("xyz.drakia.bigbrain")]
 public class Plugin : BaseUnityPlugin
@@ -39,7 +39,7 @@ public class Plugin : BaseUnityPlugin
         Log = Logger;
         SpeedMultiplier = Config.Bind("Movement", "SpeedMultiplier", 2.5f,
             new ConfigDescription("How much faster the boss moves while running or sprinting. Applies immediately", new AcceptableValueRange<float>(1f, 6f)));
-        MusicVolume = Config.Bind("Music", "Volume", 0.8f,
+        MusicVolume = Config.Bind("Music", "Volume", 0.5f,
             new ConfigDescription("Volume of the boss's music. Applies immediately", new AcceptableValueRange<float>(0f, 1f)));
         MusicRange = Config.Bind("Music", "Range", 120f,
             new ConfigDescription("Distance in metres at which the music fades to silence. Applies immediately", new AcceptableValueRange<float>(20f, 500f)));
