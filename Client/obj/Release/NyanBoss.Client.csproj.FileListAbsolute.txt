@@ -1,0 +1,10 @@
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\bin\Release\NyanBoss.Client.deps.json
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\bin\Release\NyanBoss.Client.dll
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\bin\Release\NyanBoss.Client.pdb
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.csproj.AssemblyReference.cache
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.AssemblyInfoInputs.cache
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.AssemblyInfo.cs
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.csproj.CoreCompileInputs.cache
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.dll
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\Client\obj\Release\NyanBoss.Client.pdb

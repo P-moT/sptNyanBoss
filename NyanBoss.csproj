@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>NyanBoss</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <Version>0.3.1</Version>
+    <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SPTarkov.Common" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.DI" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.Server.Core" Version="4.1.2" />
+    <PackageReference Include="SPTarkov.Reflection" Version="4.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- The client plugin is its own project - keep its sources out of the server build -->
+  <ItemGroup>
+    <Compile Remove="Client\**" />
+    <None Remove="Client\**" />
+    <Content Remove="Client\**" />
+  </ItemGroup>
+
+  <!-- Release builds also produce dist\NyanBoss-<Version>.zip, laid out to be extracted straight into the game folder -->
+  <Target Name="PackageRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <PropertyGroup>
+      <PackageStaging>$(BaseIntermediateOutputPath)package\</PackageStaging>
+      <PackageModFolder>$(PackageStaging)SPT_Runtime\user\mods\$(AssemblyName)\</PackageModFolder>
+    </PropertyGroup>
+    <RemoveDir Directories="$(PackageStaging)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll;$(OutputPath)config.json;$(MSBuildProjectDirectory)\LICENSE" DestinationFolder="$(PackageModFolder)" />
+    <MSBuild Projects="Client\NyanBoss.Client.csproj" Properties="Configuration=Release;IsRestoring=true" Targets="Restore" />
+    <MSBuild Projects="Client\NyanBoss.Client.csproj" Properties="Configuration=Release" Targets="Build" />
+    <Copy SourceFiles="Client\bin\Release\NyanBoss.Client.dll;Client\pois.json" DestinationFolder="$(PackageStaging)BepInEx\plugins\$(AssemblyName)\" />
+    <!-- Song for local builds. Not cleared for public release: build with -p:IncludeMusic=false for anything published -->
+    <Copy SourceFiles="Client\nyan.ogg" DestinationFolder="$(PackageStaging)BepInEx\plugins\$(AssemblyName)\" Condition="'$(IncludeMusic)' != 'false' And Exists('Client\nyan.ogg')" />
+    <MakeDir Directories="$(MSBuildProjectDirectory)\dist" />
+    <ZipDirectory SourceDirectory="$(PackageStaging)" DestinationFile="$(MSBuildProjectDirectory)\dist\$(AssemblyName)-$(Version).zip" Overwrite="true" />
+  </Target>
+
+</Project>

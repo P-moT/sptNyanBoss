@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "gearSourceBotType": "bossknight",
+  "bossZone": "BotZone",
+  "spawnChanceByMap": {
+    "factory4_day": 100,
+    "factory4_night": 100
+  }
+}

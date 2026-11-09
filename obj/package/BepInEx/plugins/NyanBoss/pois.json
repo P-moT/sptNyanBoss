@@ -1,0 +1,10 @@
+{
+  "factory4_day": [
+    { "Name": "South", "X": 5, "Y": 0, "Z": -35, "Radius": 35 },
+    { "Name": "North", "X": -21, "Y": 0, "Z": 23, "Radius": 35 }
+  ],
+  "factory4_night": [
+    { "Name": "South", "X": 5, "Y": 0, "Z": -35, "Radius": 35 },
+    { "Name": "North", "X": -21, "Y": 0, "Z": 23, "Radius": 35 }
+  ]
+}
