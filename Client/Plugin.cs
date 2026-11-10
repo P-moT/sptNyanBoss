@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace NyanBoss.Client;
 
-[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.7.0")]
+[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.7.5")]
 [BepInDependency("com.SPT.core", "4.1.0")]
 [BepInDependency("xyz.drakia.bigbrain")]
 public class Plugin : BaseUnityPlugin
@@ -37,6 +37,8 @@ public class Plugin : BaseUnityPlugin
     internal static ConfigEntry<float> PoptartHeight;
     internal static ConfigEntry<float> PoptartForwardOffset;
     internal static ConfigEntry<float> PoptartUpOffset;
+    internal static ConfigEntry<float> PoptartBrightness;
+    internal static ConfigEntry<bool> PoptartLit;
     internal static ConfigEntry<float> PoiRotationSeconds;
     internal static ConfigEntry<float> ProvokedSeconds;
     internal static ConfigEntry<bool> HostileToAI;
@@ -70,6 +72,10 @@ public class Plugin : BaseUnityPlugin
             new ConfigDescription("Moves the pastry out of his chest (positive) or towards his back (negative), in metres. Applies immediately", new AcceptableValueRange<float>(-0.2f, 0.2f)));
         PoptartUpOffset = Config.Bind("Pop-tart", "UpOffset", 0f,
             new ConfigDescription("Moves the pastry up (positive) or down (negative) his spine, in metres. Applies immediately", new AcceptableValueRange<float>(-0.2f, 0.2f)));
+        PoptartLit = Config.Bind("Pop-tart", "Lit", true,
+            "Light the pastry with the scene, like his clothes. Off gives flat, full-bright colours that show even in the dark. Applies immediately");
+        PoptartBrightness = Config.Bind("Pop-tart", "Brightness", 1f,
+            new ConfigDescription("Multiplies the pastry's colours. Mostly for the unlit look, which ignores the scene's lighting. Applies immediately", new AcceptableValueRange<float>(0.1f, 1f)));
         PoptartHidesArmour = Config.Bind("Pop-tart", "HideArmour", true,
             "Hide his body armour and rig, which would poke through the pastry. Purely visual: he still wears them. Applies immediately");
         PoiRotationSeconds = Config.Bind("Behaviour", "PoiRotationSeconds", 180f,

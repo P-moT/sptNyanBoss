@@ -15,6 +15,9 @@ using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Helpers.Items;
 using SPTarkov.Server.Core.Models.Enums;
 using Preset = SPTarkov.Server.Core.Models.Spt.Tables.Preset;
+using Prefab = SPTarkov.Server.Core.Models.Eft.Common.Tables.Prefab;
+using TemplateItemProperties = SPTarkov.Server.Core.Models.Eft.Common.Tables.TemplateItemProperties;
+using SPTarkov.Server.Core.Services.Modding.Custom;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils.Cloners;
@@ -31,7 +34,7 @@ public record ModMetadata : IModMetadata, IModBlazorMetadata
     public string Name { get; init; } = "NyanBoss";
     public string Author { get; init; } = "P_moT";
     public List<string>? Contributors { get; init; }
-    public SemanticVersioning.Version Version { get; init; } = new("0.7.0");
+    public SemanticVersioning.Version Version { get; init; } = new("0.7.5");
     public SemanticVersioning.Range SptVersion { get; init; } = new("4.1.6");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
@@ -81,6 +84,59 @@ public class NyanBossSpawn
 {
     public double Chance { get; set; }
     public string Zone { get; set; } = "";
+}
+
+// Items with their own models, shipped in this mod's bundles. Each is a copy of a vanilla item with only the model swapped.
+internal static class NyanItems
+{
+    internal const string UlachTpl = "6a5c9d1e7f3b2a4c8d0e1f21";
+    private const string VanillaUlachBlack = "5b40e1525acfc4771e1c6611";
+
+    // Custom item to the vanilla item it copies, so its armour plates can be borrowed from bots that wear the original
+    internal static readonly Dictionary<string, string> CloneSources = new() { [UlachTpl] = VanillaUlachBlack };
+
+    internal static void Create(CustomItemService customItems, ISptLogger<NyanItemsLoader> logger)
+    {
+        var details = new NewItemFromCloneDetails
+        {
+            ItemTplToClone = VanillaUlachBlack,
+            NewId = UlachTpl,
+            NewItemName = "item_equipment_helmet_ulach_nyan",
+            ParentId = "5a341c4086f77401f2541505",
+            HandbookParentId = "5b47574386f77428ca22b330",
+            HandbookPriceRoubles = 10524,
+            FleaPriceRoubles = 103755,
+            OverrideProperties = new TemplateItemProperties
+            {
+                Prefab = new Prefab { Path = "nyanboss/item_equipment_helmet_ulach_nyan.bundle", Rcid = "" },
+            },
+            Locales = new Dictionary<string, LocaleDetails>
+            {
+                ["en"] = new()
+                {
+                    Name = "HighCom Striker ULACH IIIA helmet (Nyan)",
+                    ShortName = "Nyan ULACH",
+                    Description = "A ULACH helmet in Nyan grey, with a pair of pixel cat ears. Same protection as the original, considerably more style.",
+                },
+            },
+        };
+        var result = customItems.CreateItemFromClone(details, Assembly.GetExecutingAssembly());
+        if (result.Success != true)
+        {
+            logger.Error($"[NyanBoss] Could not create the Nyan ULACH: {string.Join("; ", result.Errors ?? [])}");
+        }
+    }
+}
+
+// The server refuses new items once player profiles have loaded, so they go in right after the database, well before the boss
+[Injectable(TypePriority = OnLoadOrder.TraderRegistration + 1)]
+public class NyanItemsLoader(ISptLogger<NyanItemsLoader> logger, CustomItemService customItemService) : IOnLoad
+{
+    public Task OnLoadAsync(CancellationToken cancellationToken)
+    {
+        NyanItems.Create(customItemService, logger);
+        return Task.CompletedTask;
+    }
 }
 
 // The boss borrows the "bossTest" role: the client already treats it as a boss, but vanilla ships no bot data for it and
@@ -199,11 +255,13 @@ public class NyanBossLoader(
         {
             return;
         }
+        // A custom copy of a vanilla item is worn by nobody, so look for bots wearing the original instead
+        MongoId lookup = NyanItems.CloneSources.TryGetValue(item.ToString(), out string? original) ? new MongoId(original) : item;
         IEnumerable<string> donors = new[] { gearSource }.Concat(ModDonors).Concat(botTable.Types.Keys.OrderBy(key => key, StringComparer.Ordinal));
         foreach (string donor in donors)
         {
             if (botTable.Types.TryGetValue(donor, out BotType? source) && source?.BotInventory?.Mods != null
-                && source.BotInventory.Mods.TryGetValue(item, out var slots))
+                && source.BotInventory.Mods.TryGetValue(lookup, out var slots))
             {
                 mods[item] = slots.ToDictionary(pair => pair.Key, pair => new HashSet<MongoId>(pair.Value));
                 foreach (string slot in slots.Keys)

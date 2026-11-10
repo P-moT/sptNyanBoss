@@ -37,6 +37,17 @@ internal class NyanPoptart : MonoBehaviour
     // Worn on the torso, so they would poke through the pastry. Hidden only: he still wears them and they can be looted.
     private static readonly EquipmentSlot[] HiddenSlots = { EquipmentSlot.ArmorVest, EquipmentSlot.TacticalVest };
 
+    // Two looks, shared by every pastry. Lit: one material per colour on the game's own gear shader, so it takes the
+    // scene's light like his clothes do. Unlit: a copy of the trail's material, flat colour baked into the vertices,
+    // kept as the fallback and for comparison.
+    private static readonly string[] LitShaders = { "p0/Reflective/Bumped Specular SMap_Decal", "p0/Reflective/Bumped Specular SMap" };
+    private static readonly Color32[] PartColours = { Crust, Frosting, Sprinkle };
+    private static Material[] _litMaterials;
+    private static Material[] _unlitMaterials;
+    private static float _appliedBrightness = -1f;
+
+    private bool? _lit; // null until the first look is applied
+
     private Player _owner;
     private MeshFilter _filter;
     private float _builtHeight;
@@ -46,8 +57,7 @@ internal class NyanPoptart : MonoBehaviour
 
     internal static void Attach(Player player)
     {
-        Material material = NyanTrail.GetMaterial();
-        if (material == null)
+        if (!CreateMaterials())
         {
             return;
         }
@@ -57,12 +67,84 @@ internal class NyanPoptart : MonoBehaviour
         poptart._owner = player;
         poptart._filter = host.AddComponent<MeshFilter>();
         poptart.RebuildIfChanged();
-        MeshRenderer meshRenderer = host.AddComponent<MeshRenderer>();
-        meshRenderer.sharedMaterial = material;
-        meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        meshRenderer.receiveShadows = false;
-        meshRenderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
-        meshRenderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
+        host.AddComponent<MeshRenderer>();
+        poptart.ApplyLook();
+    }
+
+    private static bool CreateMaterials()
+    {
+        if (_unlitMaterials != null)
+        {
+            return true;
+        }
+        Material trail = NyanTrail.GetMaterial();
+        if (trail == null)
+        {
+            return false;
+        }
+        var unlit = new Material(trail) { hideFlags = HideFlags.HideAndDontSave };
+        _unlitMaterials = new[] { unlit, unlit, unlit };
+
+        // The game's shaders come from its own shader bundle, which is loaded by the time anyone wears gear in a raid
+        Shader shader = null;
+        foreach (string name in LitShaders)
+        {
+            shader = Shader.Find(name);
+            if (shader != null)
+            {
+                break;
+            }
+        }
+        if (shader == null)
+        {
+            Plugin.Log.LogWarning("Pop-tart: the game's gear shader was not found, using the unlit look");
+            return true;
+        }
+        _litMaterials = new Material[PartColours.Length];
+        for (int i = 0; i < PartColours.Length; i++)
+        {
+            var material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave, color = PartColours[i] };
+            material.SetFloat("_StencilType", 1f); // Characters, as his gear uses
+            // A soft sheen rather than plastic: weak, broad highlights and no mirror reflection
+            material.SetColor("_SpecColor", new Color(0.25f, 0.25f, 0.25f, 1f));
+            material.SetFloat("_Glossness", 0.3f);
+            material.SetFloat("_Specularness", 0.1f);
+            material.SetColor("_ReflectColor", Color.black);
+            _litMaterials[i] = material;
+        }
+        return true;
+    }
+
+    // Switches between the lit and unlit looks, and applies the brightness to whichever is in use
+    private void ApplyLook()
+    {
+        bool lit = Plugin.PoptartLit.Value && _litMaterials != null;
+        float brightness = Plugin.PoptartBrightness.Value;
+        var meshRenderer = GetComponent<MeshRenderer>();
+        if (lit != _lit)
+        {
+            _lit = lit;
+            meshRenderer.sharedMaterials = lit ? _litMaterials : _unlitMaterials;
+            var shadows = lit ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.Off;
+            meshRenderer.shadowCastingMode = shadows;
+            meshRenderer.receiveShadows = lit;
+            meshRenderer.lightProbeUsage = lit ? UnityEngine.Rendering.LightProbeUsage.BlendProbes : UnityEngine.Rendering.LightProbeUsage.Off;
+            meshRenderer.reflectionProbeUsage = lit ? UnityEngine.Rendering.ReflectionProbeUsage.BlendProbes : UnityEngine.Rendering.ReflectionProbeUsage.Off;
+        }
+        if (Mathf.Approximately(brightness, _appliedBrightness))
+        {
+            return;
+        }
+        _appliedBrightness = brightness;
+        _unlitMaterials[0].color = new Color(brightness, brightness, brightness, 1f);
+        if (_litMaterials != null)
+        {
+            for (int i = 0; i < _litMaterials.Length; i++)
+            {
+                Color colour = PartColours[i];
+                _litMaterials[i].color = new Color(colour.r * brightness, colour.g * brightness, colour.b * brightness, 1f);
+            }
+        }
     }
 
     private void LateUpdate()
@@ -83,6 +165,7 @@ internal class NyanPoptart : MonoBehaviour
             return;
         }
         RebuildIfChanged();
+        ApplyLook();
 
         // Runs after animation, so it sits on this frame's pose rather than lagging a frame behind
         PlayerBones bones = _owner.PlayerBones;
@@ -154,17 +237,26 @@ internal class NyanPoptart : MonoBehaviour
         }
     }
 
+    private enum Part { Crust, Frosting, Sprinkle }
+
+    // Everything one mesh needs, so the boxes can be added part by part
+    private class MeshData
+    {
+        internal readonly List<Vector3> Vertices = new List<Vector3>();
+        internal readonly List<Vector3> Normals = new List<Vector3>();
+        internal readonly List<Vector2> Uvs = new List<Vector2>();
+        internal readonly List<Color32> Colors = new List<Color32>();
+        internal readonly List<int>[] Triangles = { new List<int>(), new List<int>(), new List<int>() };
+    }
+
     private static Mesh BuildMesh(float height, float depth)
     {
-        var vertices = new List<Vector3>();
-        var colors = new List<Color32>();
-        var triangles = new List<int>();
-
+        var data = new MeshData();
         float halfW = Width / 2, halfH = height / 2, halfD = depth / 2;
 
         // Crust: two overlapping boxes make the stepped pixel corners
-        AddBox(vertices, colors, triangles, new Vector3(-halfW, -halfH + Pixel, -halfD), new Vector3(halfW, halfH - Pixel, halfD), Crust);
-        AddBox(vertices, colors, triangles, new Vector3(-halfW + Pixel, -halfH, -halfD), new Vector3(halfW - Pixel, halfH, halfD), Crust);
+        AddBox(data, Part.Crust, (new Vector3(-halfW, -halfH + Pixel, -halfD), new Vector3(halfW, halfH - Pixel, halfD)));
+        AddBox(data, Part.Crust, (new Vector3(-halfW + Pixel, -halfH, -halfD), new Vector3(halfW - Pixel, halfH, halfD)));
 
         // Frosting and sprinkles on both faces, inset from the crust edge
         float frostW = halfW - Pixel * 1.5f, frostH = halfH - Pixel * 1.5f;
@@ -172,8 +264,8 @@ internal class NyanPoptart : MonoBehaviour
         {
             float inner = side * halfD;
             float outer = side * (halfD + FrostingThickness);
-            AddBox(vertices, colors, triangles, Ordered(-frostW, -frostH + Pixel, inner, frostW, frostH - Pixel, outer), Frosting);
-            AddBox(vertices, colors, triangles, Ordered(-frostW + Pixel, -frostH, inner, frostW - Pixel, frostH, outer), Frosting);
+            AddBox(data, Part.Frosting, Ordered(-frostW, -frostH + Pixel, inner, frostW, frostH - Pixel, outer));
+            AddBox(data, Part.Frosting, Ordered(-frostW + Pixel, -frostH, inner, frostW - Pixel, frostH, outer));
 
             float top = side * (halfD + FrostingThickness + SprinkleThickness);
             foreach (Vector2 spot in Sprinkles)
@@ -181,14 +273,22 @@ internal class NyanPoptart : MonoBehaviour
                 // Mirrored on the back, so the pattern reads the same way round from behind
                 float x = Mathf.Lerp(-frostW + Pixel, frostW - Pixel, side > 0 ? spot.x : 1 - spot.x);
                 float y = Mathf.Lerp(-frostH + Pixel, frostH - Pixel, spot.y);
-                AddBox(vertices, colors, triangles, Ordered(x - Pixel / 2, y - Pixel / 2, outer, x + Pixel / 2, y + Pixel / 2, top), Sprinkle);
+                AddBox(data, Part.Sprinkle, Ordered(x - Pixel / 2, y - Pixel / 2, outer, x + Pixel / 2, y + Pixel / 2, top));
             }
         }
 
-        var mesh = new Mesh { name = "NyanBossPoptart" };
-        mesh.SetVertices(vertices);
-        mesh.SetColors(colors);
-        mesh.SetTriangles(triangles, 0);
+        // One submesh per colour, so the lit look can give each its own material. The unlit look uses the vertex colours.
+        var mesh = new Mesh { name = "NyanBossPoptart", subMeshCount = data.Triangles.Length };
+        mesh.SetVertices(data.Vertices);
+        mesh.SetNormals(data.Normals);
+        mesh.SetUVs(0, data.Uvs);
+        mesh.SetColors(data.Colors);
+        for (int i = 0; i < data.Triangles.Length; i++)
+        {
+            mesh.SetTriangles(data.Triangles[i], i);
+        }
+        // The game's shader reads its normal map along the surface tangents, so a lit mesh needs them
+        mesh.RecalculateTangents();
         mesh.RecalculateBounds();
         return mesh;
     }
@@ -198,39 +298,49 @@ internal class NyanPoptart : MonoBehaviour
         return (new Vector3(Mathf.Min(x1, x2), Mathf.Min(y1, y2), Mathf.Min(z1, z2)), new Vector3(Mathf.Max(x1, x2), Mathf.Max(y1, y2), Mathf.Max(z1, z2)));
     }
 
-    private static void AddBox(List<Vector3> vertices, List<Color32> colors, List<int> triangles, (Vector3 Min, Vector3 Max) box, Color32 color)
+    // Each face also gets a fixed shade in its vertex colour, which keeps the edges readable in the unlit look
+    private static void AddBox(MeshData data, Part part, (Vector3 Min, Vector3 Max) box)
     {
-        AddBox(vertices, colors, triangles, box.Min, box.Max, color);
+        Vector3 min = box.Min, max = box.Max;
+        AddFace(data, part, Vector3.forward, 1f, new Vector3(min.x, min.y, max.z), new Vector3(max.x, min.y, max.z), new Vector3(max.x, max.y, max.z), new Vector3(min.x, max.y, max.z));
+        AddFace(data, part, Vector3.back, 1f, new Vector3(max.x, min.y, min.z), new Vector3(min.x, min.y, min.z), new Vector3(min.x, max.y, min.z), new Vector3(max.x, max.y, min.z));
+        AddFace(data, part, Vector3.up, 1.08f, new Vector3(min.x, max.y, max.z), new Vector3(max.x, max.y, max.z), new Vector3(max.x, max.y, min.z), new Vector3(min.x, max.y, min.z));
+        AddFace(data, part, Vector3.down, 0.7f, new Vector3(min.x, min.y, min.z), new Vector3(max.x, min.y, min.z), new Vector3(max.x, min.y, max.z), new Vector3(min.x, min.y, max.z));
+        AddFace(data, part, Vector3.right, 0.85f, new Vector3(max.x, min.y, max.z), new Vector3(max.x, min.y, min.z), new Vector3(max.x, max.y, min.z), new Vector3(max.x, max.y, max.z));
+        AddFace(data, part, Vector3.left, 0.85f, new Vector3(min.x, min.y, min.z), new Vector3(min.x, min.y, max.z), new Vector3(min.x, max.y, max.z), new Vector3(min.x, max.y, min.z));
     }
 
-    // The shader is unlit, so each face gets its own fixed shade to keep the edges readable
-    private static void AddBox(List<Vector3> vertices, List<Color32> colors, List<int> triangles, Vector3 min, Vector3 max, Color32 color)
+    // a, b, c, d go round the face's edge. The lit shader skips faces seen from behind, so the winding is chosen
+    // from the face's outward direction instead of trusted from the corner order.
+    private static void AddFace(MeshData data, Part part, Vector3 outward, float shade, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
     {
-        AddFace(vertices, colors, triangles, color, 1f, new Vector3(min.x, min.y, max.z), new Vector3(max.x, min.y, max.z), new Vector3(max.x, max.y, max.z), new Vector3(min.x, max.y, max.z));
-        AddFace(vertices, colors, triangles, color, 1f, new Vector3(max.x, min.y, min.z), new Vector3(min.x, min.y, min.z), new Vector3(min.x, max.y, min.z), new Vector3(max.x, max.y, min.z));
-        AddFace(vertices, colors, triangles, color, 1.08f, new Vector3(min.x, max.y, max.z), new Vector3(max.x, max.y, max.z), new Vector3(max.x, max.y, min.z), new Vector3(min.x, max.y, min.z));
-        AddFace(vertices, colors, triangles, color, 0.7f, new Vector3(min.x, min.y, min.z), new Vector3(max.x, min.y, min.z), new Vector3(max.x, min.y, max.z), new Vector3(min.x, min.y, max.z));
-        AddFace(vertices, colors, triangles, color, 0.85f, new Vector3(max.x, min.y, max.z), new Vector3(max.x, min.y, min.z), new Vector3(max.x, max.y, min.z), new Vector3(max.x, max.y, max.z));
-        AddFace(vertices, colors, triangles, color, 0.85f, new Vector3(min.x, min.y, min.z), new Vector3(min.x, min.y, max.z), new Vector3(min.x, max.y, max.z), new Vector3(min.x, max.y, min.z));
-    }
-
-    private static void AddFace(List<Vector3> vertices, List<Color32> colors, List<int> triangles, Color32 color, float shade, Vector3 a, Vector3 b, Vector3 c, Vector3 d)
-    {
-        int first = vertices.Count;
-        vertices.Add(a);
-        vertices.Add(b);
-        vertices.Add(c);
-        vertices.Add(d);
-        var shaded = new Color32((byte)Mathf.Min(255, color.r * shade), (byte)Mathf.Min(255, color.g * shade), (byte)Mathf.Min(255, color.b * shade), 255);
+        int first = data.Vertices.Count;
+        data.Vertices.Add(a);
+        data.Vertices.Add(b);
+        data.Vertices.Add(c);
+        data.Vertices.Add(d);
+        data.Uvs.Add(new Vector2(0, 0));
+        data.Uvs.Add(new Vector2(1, 0));
+        data.Uvs.Add(new Vector2(1, 1));
+        data.Uvs.Add(new Vector2(0, 1));
+        Color32 colour = PartColours[(int)part];
+        var shaded = new Color32((byte)Mathf.Min(255, colour.r * shade), (byte)Mathf.Min(255, colour.g * shade), (byte)Mathf.Min(255, colour.b * shade), 255);
         for (int i = 0; i < 4; i++)
         {
-            colors.Add(shaded);
+            data.Normals.Add(outward);
+            data.Colors.Add(shaded);
         }
-        triangles.Add(first);
-        triangles.Add(first + 2);
-        triangles.Add(first + 1);
-        triangles.Add(first);
-        triangles.Add(first + 3);
-        triangles.Add(first + 2);
+
+        // Unity treats a triangle as facing the way of Cross(second - first, third - first)
+        bool keepOrder = Vector3.Dot(Vector3.Cross(b - a, c - a), outward) > 0;
+        List<int> triangles = data.Triangles[(int)part];
+        if (keepOrder)
+        {
+            triangles.AddRange(new[] { first, first + 1, first + 2, first, first + 2, first + 3 });
+        }
+        else
+        {
+            triangles.AddRange(new[] { first, first + 2, first + 1, first, first + 3, first + 2 });
+        }
     }
 }

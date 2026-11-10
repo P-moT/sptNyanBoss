@@ -1,0 +1,11 @@
+{
+    "manifest": [
+        {
+            "key": "nyanboss/item_equipment_helmet_ulach_nyan.bundle",
+            "dependencyKeys": [
+                "shaders",
+                "cubemaps"
+            ]
+        }
+    ]
+}

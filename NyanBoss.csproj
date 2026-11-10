@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
-    <Version>0.7.0</Version>
+    <Version>0.7.5</Version>
     <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
@@ -46,6 +46,12 @@
       <MapFile Include="wwwroot\maps\*" />
     </ItemGroup>
     <Copy SourceFiles="@(MapFile)" DestinationFolder="$(PackageModFolder)wwwroot\maps\" />
+    <!-- Custom models: the manifest the server reads, and the Unity bundles it lists -->
+    <ItemGroup>
+      <BundleFile Include="bundles\**\*.bundle" />
+    </ItemGroup>
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\bundles.json" DestinationFolder="$(PackageModFolder)" />
+    <Copy SourceFiles="@(BundleFile)" DestinationFolder="$(PackageModFolder)bundles\%(RecursiveDir)" />
     <MSBuild Projects="Client\NyanBoss.Client.csproj" Properties="Configuration=Release;IsRestoring=true" Targets="Restore" />
     <MSBuild Projects="Client\NyanBoss.Client.csproj" Properties="Configuration=Release" Targets="Build" />
     <Copy SourceFiles="Client\bin\Release\NyanBoss.Client.dll" DestinationFolder="$(PackageStaging)BepInEx\plugins\$(AssemblyName)\" />
