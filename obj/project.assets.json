@@ -2,6 +2,45 @@
   "version": 4,
   "targets": {
     "net10.0": {
+      "Argon2Sharp/4.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Argon2Sharp.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Argon2Sharp.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/linux-arm64/native/libargon2_sharp_core.so": {
+            "assetType": "native",
+            "rid": "linux-arm64"
+          },
+          "runtimes/linux-x64/native/libargon2_sharp_core.so": {
+            "assetType": "native",
+            "rid": "linux-x64"
+          },
+          "runtimes/osx-arm64/native/libargon2_sharp_core.dylib": {
+            "assetType": "native",
+            "rid": "osx-arm64"
+          },
+          "runtimes/osx-x64/native/libargon2_sharp_core.dylib": {
+            "assetType": "native",
+            "rid": "osx-x64"
+          },
+          "runtimes/win-arm64/native/argon2_sharp_core.dll": {
+            "assetType": "native",
+            "rid": "win-arm64"
+          },
+          "runtimes/win-x64/native/argon2_sharp_core.dll": {
+            "assetType": "native",
+            "rid": "win-x64"
+          }
+        }
+      },
       "FastCloner/3.5.5": {
         "type": "package",
         "compile": {
@@ -38,6 +77,16 @@
           "lib/netstandard2.0/JetBrains.Annotations.dll": {
             "related": ".deps.json;.xml"
           }
+        }
+      },
+      "Microsoft.AspNetCore.App.Internal.Assets/10.0.12": {
+        "type": "package",
+        "build": {
+          "build/Microsoft.AspNetCore.App.Internal.Assets.props": {},
+          "buildTransitive/Microsoft.AspNetCore.App.Internal.Assets.targets": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/Microsoft.AspNetCore.App.Internal.Assets.targets": {}
         }
       },
       "Mono.Cecil/0.11.6": {
@@ -167,6 +216,25 @@
           "lib/net10.0/MonoMod.Utils.dll": {
             "related": ".pdb;.xml"
           }
+        }
+      },
+      "MudBlazor/9.7.0": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/MudBlazor.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/MudBlazor.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/MudBlazor.props": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/MudBlazor.props": {}
         }
       },
       "SemanticVersioning/3.0.0": {
@@ -331,6 +399,33 @@
           }
         }
       },
+      "SPTarkov.Server.Web/4.1.2": {
+        "type": "package",
+        "dependencies": {
+          "Argon2Sharp": "4.0.1",
+          "MudBlazor": "9.7.0",
+          "SPTarkov.Server.Core": "4.1.2"
+        },
+        "compile": {
+          "lib/net10.0/SPTarkov.Server.Web.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/SPTarkov.Server.Web.dll": {
+            "related": ".xml"
+          }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ],
+        "build": {
+          "buildTransitive/SPTarkov.Server.Web.props": {}
+        },
+        "buildMultiTargeting": {
+          "buildMultiTargeting/SPTarkov.Server.Web.props": {}
+        }
+      },
       "System.IO.Hashing/10.0.9": {
         "type": "package",
         "compile": {
@@ -393,6 +488,31 @@
     }
   },
   "libraries": {
+    "Argon2Sharp/4.0.1": {
+      "sha512": "ROzDpP6VzJI2wHaK9Z6Oyl/wU1pojZAcWzLJEstQj0e2gCzSnJOrQFq2bm+TkUVsMhlq2tUqYykBQMlwGFQcsg==",
+      "type": "package",
+      "path": "argon2sharp/4.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "argon2sharp.4.0.1.nupkg.sha512",
+        "argon2sharp.nuspec",
+        "icon.png",
+        "lib/net10.0/Argon2Sharp.dll",
+        "lib/net10.0/Argon2Sharp.xml",
+        "lib/net8.0/Argon2Sharp.dll",
+        "lib/net8.0/Argon2Sharp.xml",
+        "lib/net9.0/Argon2Sharp.dll",
+        "lib/net9.0/Argon2Sharp.xml",
+        "runtimes/linux-arm64/native/libargon2_sharp_core.so",
+        "runtimes/linux-x64/native/libargon2_sharp_core.so",
+        "runtimes/osx-arm64/native/libargon2_sharp_core.dylib",
+        "runtimes/osx-x64/native/libargon2_sharp_core.dylib",
+        "runtimes/win-arm64/native/argon2_sharp_core.dll",
+        "runtimes/win-x64/native/argon2_sharp_core.dll"
+      ]
+    },
     "FastCloner/3.5.5": {
       "sha512": "q553fGj+/MiKS/LoaAinN9CCeKE6tKCUuCWck38vRB7odTurhlssiSKHWbskPBiEhSnXXWewLAGoqoTaieKMGw==",
       "type": "package",
@@ -453,6 +573,29 @@
         "lib/portable40-net40+sl5+win8+wp8+wpa81/JetBrains.Annotations.dll",
         "lib/portable40-net40+sl5+win8+wp8+wpa81/JetBrains.Annotations.xml",
         "readme.md"
+      ]
+    },
+    "Microsoft.AspNetCore.App.Internal.Assets/10.0.12": {
+      "sha512": "+sIBo9AMBZH46qHWHQdfzcGMt+RuBaPYrUMOAM9VjA7MQ9QtIez3lq1C3E05+Yroa94KKt3DSWaxmCI4H28a9Q==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.app.internal.assets/10.0.12",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "THIRD-PARTY-NOTICES.TXT",
+        "_framework/blazor.server.js",
+        "_framework/blazor.server.js.map",
+        "_framework/blazor.web.js",
+        "_framework/blazor.web.js.map",
+        "_framework/blazor.webassembly.js",
+        "_framework/blazor.webassembly.js.map",
+        "build/Microsoft.AspNetCore.App.Internal.Assets.props",
+        "build/Microsoft.AspNetCore.App.Internal.Assets.targets",
+        "buildMultiTargeting/Microsoft.AspNetCore.App.Internal.Assets.targets",
+        "buildTransitive/Microsoft.AspNetCore.App.Internal.Assets.targets",
+        "microsoft.aspnetcore.app.internal.assets.10.0.12.nupkg.sha512",
+        "microsoft.aspnetcore.app.internal.assets.nuspec"
       ]
     },
     "Mono.Cecil/0.11.6": {
@@ -728,6 +871,37 @@
         "monomod.utils.nuspec"
       ]
     },
+    "MudBlazor/9.7.0": {
+      "sha512": "uWOgNn9B556J/TL8KFoSqpA3YD2heqOpK5etcofwlj1RiEX1IDy0NmwYE9urlTUQ8zProEK5GqwTBnoObFPN3g==",
+      "type": "package",
+      "path": "mudblazor/9.7.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "Nuget.png",
+        "README.md",
+        "analyzers/dotnet/cs/MudBlazor.Analyzers.CodeFixes.dll",
+        "analyzers/dotnet/cs/MudBlazor.Analyzers.dll",
+        "build/Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+        "build/Microsoft.AspNetCore.StaticWebAssets.props",
+        "build/MudBlazor.props",
+        "build/MudBlazor.targets",
+        "buildMultiTargeting/MudBlazor.props",
+        "buildTransitive/MudBlazor.props",
+        "lib/net10.0/MudBlazor.dll",
+        "lib/net10.0/MudBlazor.xml",
+        "lib/net8.0/MudBlazor.dll",
+        "lib/net8.0/MudBlazor.xml",
+        "lib/net9.0/MudBlazor.dll",
+        "lib/net9.0/MudBlazor.xml",
+        "mudblazor.9.7.0.nupkg.sha512",
+        "mudblazor.nuspec",
+        "staticwebassets/MudBlazor.min.css",
+        "staticwebassets/MudBlazor.min.js",
+        "staticwebassets/MudBlazor.min.js.map"
+      ]
+    },
     "SemanticVersioning/3.0.0": {
       "sha512": "RR+8GbPQ/gjDqov/1QN1OPoUlbUruNwcL3WjWCeLw+MY7+od/ENhnkYxCfAC6rQLIu3QifaJt3kPYyP3RumqMQ==",
       "type": "package",
@@ -901,6 +1075,28 @@
         "sptarkov.server.core.nuspec"
       ]
     },
+    "SPTarkov.Server.Web/4.1.2": {
+      "sha512": "XMH0QIN/cyKZifAmz2EbI8uhgdKEQflXvQKu6PyDZblaivsHIMxQE1EHQsvzWZSqTFilxaNDDF5G2chwabYKpA==",
+      "type": "package",
+      "path": "sptarkov.server.web/4.1.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "build/Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+        "build/Microsoft.AspNetCore.StaticWebAssets.props",
+        "build/SPTarkov.Server.Web.props",
+        "buildMultiTargeting/SPTarkov.Server.Web.props",
+        "buildTransitive/SPTarkov.Server.Web.props",
+        "lib/net10.0/SPTarkov.Server.Web.dll",
+        "lib/net10.0/SPTarkov.Server.Web.xml",
+        "sptarkov.server.web.4.1.2.nupkg.sha512",
+        "sptarkov.server.web.nuspec",
+        "staticwebassets/SPTarkov.Server.Web.styles.css",
+        "staticwebassets/css/spt-theme.css",
+        "staticwebassets/favicon.ico"
+      ]
+    },
     "System.IO.Hashing/10.0.9": {
       "sha512": "vixglGnKEexAJDeIRhyayZYzxyrgK1K9GU3K/zRZVwDbaDcMkSqj4WDHoVmQMNfsdUtLALfNSJw6mBIpdxie4A==",
       "type": "package",
@@ -997,17 +1193,19 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "Microsoft.AspNetCore.App.Internal.Assets >= 10.0.12",
       "SPTarkov.Common >= 4.1.2",
       "SPTarkov.DI >= 4.1.2",
       "SPTarkov.Reflection >= 4.1.2",
-      "SPTarkov.Server.Core >= 4.1.2"
+      "SPTarkov.Server.Core >= 4.1.2",
+      "SPTarkov.Server.Web >= 4.1.2"
     ]
   },
   "packageFolders": {
     "C:\\Users\\tommy\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.4.0",
+    "version": "0.6.2",
     "restore": {
       "projectUniqueName": "C:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\NyanBoss.csproj",
       "projectName": "NyanBoss",
@@ -1048,6 +1246,12 @@
         "framework": "net10.0",
         "targetAlias": "net10.0",
         "dependencies": {
+          "Microsoft.AspNetCore.App.Internal.Assets": {
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[10.0.12, )",
+            "autoReferenced": true
+          },
           "SPTarkov.Common": {
             "target": "Package",
             "version": "[4.1.2, )"
@@ -1061,6 +1265,10 @@
             "version": "[4.1.2, )"
           },
           "SPTarkov.Server.Core": {
+            "target": "Package",
+            "version": "[4.1.2, )"
+          },
+          "SPTarkov.Server.Web": {
             "target": "Package",
             "version": "[4.1.2, )"
           }

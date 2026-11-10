@@ -6,7 +6,7 @@
     <AssemblyName>NyanBoss.Client</AssemblyName>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>0.4.0</Version>
+    <Version>0.6.2</Version>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -24,12 +24,14 @@
     <Reference Include="UnityEngine.AudioModule" HintPath="$(ManagedPath)\UnityEngine.AudioModule.dll" Private="false" />
     <Reference Include="UnityEngine.UnityWebRequestModule" HintPath="$(ManagedPath)\UnityEngine.UnityWebRequestModule.dll" Private="false" />
     <Reference Include="UnityEngine.UnityWebRequestAudioModule" HintPath="$(ManagedPath)\UnityEngine.UnityWebRequestAudioModule.dll" Private="false" />
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(ManagedPath)\UnityEngine.PhysicsModule.dll" Private="false" />
     <Reference Include="UnityEngine.AIModule" HintPath="$(ManagedPath)\UnityEngine.AIModule.dll" Private="false" />
     <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(ManagedPath)\UnityEngine.InputLegacyModule.dll" Private="false" />
     <Reference Include="Newtonsoft.Json" HintPath="$(ManagedPath)\Newtonsoft.Json.dll" Private="false" />
     <Reference Include="DrakiaXYZ-BigBrain" HintPath="$(SptClientPath)\BepInEx\plugins\DrakiaXYZ-BigBrain.dll" Private="false" />
     <Reference Include="BepInEx" HintPath="$(SptClientPath)\BepInEx\core\BepInEx.dll" Private="false" />
     <Reference Include="0Harmony" HintPath="$(SptClientPath)\BepInEx\core\0Harmony.dll" Private="false" />
+    <Reference Include="spt-common" HintPath="$(SptClientPath)\BepInEx\plugins\spt\spt-common.dll" Private="false" />
     <Reference Include="spt-reflection" HintPath="$(SptClientPath)\BepInEx\plugins\spt\spt-reflection.dll" Private="false" />
   </ItemGroup>
 

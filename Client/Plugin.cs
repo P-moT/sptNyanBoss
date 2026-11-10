@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace NyanBoss.Client;
 
-[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.4.0")]
+[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.6.2")]
 [BepInDependency("com.SPT.core", "4.1.0")]
 [BepInDependency("xyz.drakia.bigbrain")]
 public class Plugin : BaseUnityPlugin
@@ -37,7 +37,7 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Log = Logger;
-        SpeedMultiplier = Config.Bind("Movement", "SpeedMultiplier", 2.5f,
+        SpeedMultiplier = Config.Bind("Movement", "SpeedMultiplier", 2f,
             new ConfigDescription("How much faster the boss moves while running or sprinting. Applies immediately", new AcceptableValueRange<float>(1f, 6f)));
         MusicVolume = Config.Bind("Music", "Volume", 0.5f,
             new ConfigDescription("Volume of the boss's music. Applies immediately", new AcceptableValueRange<float>(0f, 1f)));
@@ -57,10 +57,9 @@ public class Plugin : BaseUnityPlugin
         SpeedLogging = Config.Bind("Debug", "SpeedLogging", true,
             "Write the boss's measured speed to the BepInEx log every two seconds");
         LogPositionKey = Config.Bind("Debug", "LogPositionKey", new KeyboardShortcut(KeyCode.F9),
-            "Writes your position to the BepInEx log in pois.json format, for adding POIs");
+            "Writes your position to the BepInEx log, for placing POIs precisely");
 
         string folder = Path.GetDirectoryName(Info.Location);
-        NyanPois.Load(folder);
 
         new BrainSwapPatch().Enable();
         new SpeedPatch().Enable();

@@ -1,0 +1,465 @@
+@* NyanBoss - Copyright (C) 2026 P_moT
+   SPDX-License-Identifier: GPL-3.0-only *@
+@page "/nyanboss"
+@using System.Globalization
+@using System.Reflection
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@using SPTarkov.Server.Core.Helpers.Server
+@using SPTarkov.Server.Core.Models.Spt.Tables
+@using SPTarkov.Server.Web.Layout
+@attribute [Authorize(Policy = "Administrator")]
+@layout BaseMudBlazorLayout
+@inject NyanPoiStore Store
+@inject LocationTable Locations
+@inject ModHelper ModHelper
+
+<PageTitle>NyanBoss POIs</PageTitle>
+
+<style>
+    .nyan-page { padding: 72px 24px 24px; display: flex; flex-direction: column; gap: 16px; }
+    .nyan-layout { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .nyan-map { overflow: auto; max-height: 76vh; max-width: 100%; border: 1px solid var(--mud-palette-lines-default); border-radius: 4px; background: var(--mud-palette-surface); }
+    .nyan-map svg { display: block; user-select: none; }
+    .nyan-side { width: 320px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .nyan-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .nyan-point-bot { fill: var(--mud-palette-text-secondary); opacity: .6; }
+    .nyan-point-boss { fill: #1baf7a; stroke: var(--mud-palette-surface); stroke-width: 1; }
+    .nyan-point-player { fill: none; stroke: var(--mud-palette-text-secondary); stroke-width: 1.5; }
+    .nyan-poi { fill: #2a78d6; fill-opacity: .14; stroke: #2a78d6; stroke-width: 2; cursor: move; }
+    .nyan-poi-selected { fill: #eb6834; stroke: #eb6834; stroke-width: 3; }
+    .nyan-return { fill: none; stroke: #2a78d6; stroke-width: 1.5; stroke-dasharray: 5 5; opacity: .7; pointer-events: none; }
+    .nyan-return-selected { stroke: #eb6834; }
+    .nyan-handle { fill: var(--mud-palette-surface); stroke: #2a78d6; stroke-width: 2; cursor: ew-resize; }
+    .nyan-handle-selected { stroke: #eb6834; }
+    .nyan-label { fill: var(--mud-palette-text-primary); font-size: 13px; font-weight: 600; pointer-events: none; paint-order: stroke; stroke: var(--mud-palette-surface); stroke-width: 3px; stroke-linejoin: round; }
+    .nyan-legend { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--mud-palette-text-secondary); }
+    .nyan-legend svg { vertical-align: middle; margin-right: 4px; }
+    .nyan-list-item { display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 8px; border: 1px solid var(--mud-palette-lines-default); border-radius: 4px; background: none; color: var(--mud-palette-text-primary); cursor: pointer; font: inherit; text-align: left; }
+    .nyan-list-item-selected { border-color: #eb6834; box-shadow: inset 0 0 0 1px #eb6834; }
+</style>
+
+<div class="nyan-page">
+    <div>
+        <MudText Typo="Typo.h5">NyanBoss POIs</MudText>
+        <MudText Typo="Typo.body2">He spawns inside one of these circles and patrols there. Drag a circle to move it, or drag the handle on its right edge to resize it. Saved changes apply from the next raid, without restarting the game.</MudText>
+    </div>
+
+    @if (Store.LoadError != null)
+    {
+        <MudAlert Severity="Severity.Error">@Store.LoadError Fix the file and restart the server. Saving is disabled so nothing in it is lost.</MudAlert>
+    }
+    @if (_status != null)
+    {
+        <MudAlert Severity="_statusSeverity" ShowCloseIcon="true" CloseIconClicked="() => _status = null">@_status</MudAlert>
+    }
+    @if (_pois.Count > 0 && _spawnWarning != null)
+    {
+        <MudAlert Severity="Severity.Warning">@_spawnWarning</MudAlert>
+    }
+
+    <div class="nyan-row">
+        <MudSelect T="string" Label="Map" Value="_map" ValueChanged="SelectMap" Variant="Variant.Outlined" Dense="true" Style="min-width: 220px">
+            @foreach ((string id, string name) in Maps)
+            {
+                <MudSelectItem T="string" Value="@id">@name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect T="double" Label="Zoom" @bind-Value="_zoom" Variant="Variant.Outlined" Dense="true" Style="min-width: 110px">
+            <MudSelectItem T="double" Value="1d">100%</MudSelectItem>
+            <MudSelectItem T="double" Value="2d">200%</MudSelectItem>
+            <MudSelectItem T="double" Value="4d">400%</MudSelectItem>
+        </MudSelect>
+        <MudSwitch T="bool" @bind-Value="_showSpawnPoints" Label="Show spawn points" Color="Color.Primary" />
+        <MudButton Variant="Variant.Outlined" OnClick="AddPoi">Add POI</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Disabled="@(!_dirty || !IsValid || Store.LoadError != null)">Save</MudButton>
+        <MudButton Variant="Variant.Text" OnClick="Revert" Disabled="@(!_dirty)">Discard changes</MudButton>
+        @if (_dirty)
+        {
+            <MudText Typo="Typo.body2">Unsaved changes</MudText>
+        }
+    </div>
+
+    <div class="nyan-layout">
+        <div class="nyan-map">
+            <svg width="@F(SvgWidth)" height="@F(SvgHeight)" viewBox="0 0 @F(SvgWidth) @F(SvgHeight)"
+                 @onmousemove="OnMouseMove" @onmouseup="EndDrag" @onmouseleave="EndDrag">
+                @{
+                    (double cornerX0, double cornerY0) = ToPx(_image.X0, _image.Z0);
+                    (double cornerX1, double cornerY1) = ToPx(_image.X1, _image.Z1);
+                }
+                <image href="@($"{MapFolder}/{_image.File}")" x="@F(Math.Min(cornerX0, cornerX1))" y="@F(Math.Min(cornerY0, cornerY1))"
+                       width="@F(Math.Abs(cornerX1 - cornerX0))" height="@F(Math.Abs(cornerY1 - cornerY0))" preserveAspectRatio="none" />
+
+                @foreach (SpawnPoint point in _showSpawnPoints ? _points : new List<SpawnPoint>())
+                {
+                    (double px, double py) = ToPx(point.X, point.Z);
+                    @if (point.Kind == SpawnKind.Player)
+                    {
+                        <polygon class="nyan-point-player" points="@($"{F(px)},{F(py - 4)} {F(px + 4)},{F(py + 3)} {F(px - 4)},{F(py + 3)}")"><title>@point.Label</title></polygon>
+                    }
+                    else
+                    {
+                        <circle class="@(point.Kind == SpawnKind.Boss ? "nyan-point-boss" : "nyan-point-bot")" cx="@F(px)" cy="@F(py)" r="@(point.Kind == SpawnKind.Boss ? "4" : "3")"><title>@point.Label</title></circle>
+                    }
+                }
+
+                @foreach (NyanPoi poi in CurrentPois)
+                {
+                    bool selected = ReferenceEquals(poi, _selected);
+                    (double cx, double cy) = ToPx(poi.X, poi.Z);
+                    double radius = poi.Radius * Scale;
+                    <g>
+                        <circle class="nyan-return @(selected ? "nyan-return-selected" : "")" cx="@F(cx)" cy="@F(cy)" r="@F(radius * ReturnMargin)" />
+                        <circle class="nyan-poi @(selected ? "nyan-poi-selected" : "")" cx="@F(cx)" cy="@F(cy)" r="@F(radius)"
+                            @onmousedown="e => BeginDrag(e, poi, DragMode.Move)" @onmousedown:preventDefault="true" />
+                        <circle class="nyan-handle @(selected ? "nyan-handle-selected" : "")" cx="@F(cx + radius)" cy="@F(cy)" r="7"
+                            @onmousedown="e => BeginDrag(e, poi, DragMode.Resize)" @onmousedown:preventDefault="true" @onmousedown:stopPropagation="true" />
+                        <text class="nyan-label" x="@F(cx)" y="@F(cy + 4)" text-anchor="middle">@poi.Name</text>
+                    </g>
+                }
+            </svg>
+        </div>
+
+        <div class="nyan-side">
+            <div class="nyan-legend">
+                <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#2a78d6" fill-opacity=".14" stroke="#2a78d6" stroke-width="2" /></svg>POI</span>
+                <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#eb6834" fill-opacity=".14" stroke="#eb6834" stroke-width="2" /></svg>Selected</span>
+                <span><svg width="14" height="14"><line x1="0" x2="14" y1="7" y2="7" stroke="#2a78d6" stroke-width="1.5" stroke-dasharray="4 3" /></svg>He returns past this</span>
+                @if (_showSpawnPoints)
+                {
+                    <span><svg width="14" height="14"><circle cx="7" cy="7" r="4" class="nyan-point-boss" /></svg>Boss spawn</span>
+                    <span><svg width="14" height="14"><circle cx="7" cy="7" r="3" class="nyan-point-bot" /></svg>Bot spawn</span>
+                    <span><svg width="14" height="14"><polygon points="7,3 11,10 3,10" class="nyan-point-player" /></svg>Player spawn</span>
+                }
+            </div>
+
+            @if (CurrentPois.Count == 0)
+            {
+                <MudText Typo="Typo.body2">No POIs on this map. Without any, he uses his default behaviour here.</MudText>
+            }
+            @foreach (NyanPoi poi in CurrentPois)
+            {
+                <button type="button" class="nyan-list-item @(ReferenceEquals(poi, _selected) ? "nyan-list-item-selected" : "")" @onclick="() => _selected = poi">
+                    <span>@(string.IsNullOrWhiteSpace(poi.Name) ? "(unnamed)" : poi.Name)</span>
+                    <span>@poi.Radius.ToString("0", CultureInfo.InvariantCulture) m</span>
+                </button>
+            }
+
+            @if (_selected != null)
+            {
+                <MudTextField T="string" Label="Name" @bind-Value="_selected.Name" @bind-Value:after="MarkDirty" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense"
+                              Error="@string.IsNullOrWhiteSpace(_selected.Name)" ErrorText="A name is required" />
+                <div class="nyan-row">
+                    <MudNumericField T="double" Label="X" @bind-Value="_selected.X" @bind-Value:after="MarkDirty" Variant="Variant.Outlined" Margin="Margin.Dense" Style="width: 90px" />
+                    <MudNumericField T="double" Label="Z" @bind-Value="_selected.Z" @bind-Value:after="MarkDirty" Variant="Variant.Outlined" Margin="Margin.Dense" Style="width: 90px" />
+                    <MudNumericField T="double" Label="Y" @bind-Value="_selected.Y" @bind-Value:after="MarkDirty" Variant="Variant.Outlined" Margin="Margin.Dense" Style="width: 90px"
+                                     HelperText="Height" />
+                </div>
+                <MudNumericField T="double" Label="Radius (m)" @bind-Value="_selected.Radius" @bind-Value:after="MarkDirty" Min="NyanPoiStore.MinRadius" Max="NyanPoiStore.MaxRadius" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteSelected">Delete POI</MudButton>
+            }
+
+            <MudText Typo="Typo.caption">
+                Map by Shebuka and contributors, from the
+                <MudLink Href="https://github.com/the-hideout/tarkov-dev-svg-maps" Target="_blank" Typo="Typo.caption">Escape from Tarkov SVG Maps Project</MudLink>,
+                used unmodified under
+                <MudLink Href="https://creativecommons.org/licenses/by-nc-sa/4.0/" Target="_blank" Typo="Typo.caption">CC BY-NC-SA 4.0</MudLink>.
+            </MudText>
+        </div>
+    </div>
+</div>
+
+@code {
+    private enum DragMode { None, Move, Resize }
+    private enum SpawnKind { Bot, Boss, Player }
+    private sealed record SpawnPoint(double X, double Y, double Z, SpawnKind Kind, string Label);
+
+    // Where a map's SVG sits in game coordinates, from tarkov.dev's map data (svgBounds where it has them, otherwise bounds).
+    // Rotation is the angle tarkov.dev turns game coordinates by, which decides which game axis runs along the image.
+    private sealed record MapImage(string File, int Rotation, double X0, double Z0, double X1, double Z1);
+
+    private const string MapFolder = "/nyanboss-static/maps";
+
+    private static readonly MapImage FactoryImage = new("Factory.svg", 90, 77, -64.5, -65.5, 67.4);
+
+    private static readonly Dictionary<string, MapImage> Images = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["bigmap"] = new("Customs.svg", 180, 698, -307, -372, 237),
+        ["factory4_day"] = FactoryImage,
+        ["factory4_night"] = FactoryImage,
+        ["interchange"] = new("Interchange.svg", 180, 598, -442, -433, 426),
+        ["lighthouse"] = new("Lighthouse.svg", 180, 515, -998, -545, 725),
+        ["rezervbase"] = new("Reserve.svg", 180, 289, -274, -303, 272),
+        ["sandbox"] = new("GroundZero.svg", 180, 249, -124, -99, 364),
+        ["shoreline"] = new("Shoreline.svg", 180, 504, -415, -1056, 618),
+        ["tarkovstreets"] = new("StreetsOfTarkov.svg", 180, 323, -295, -280, 532),
+        ["woods"] = new("Woods.svg", 180, 646, -914, -761, 442),
+    };
+
+    // The Escape from Tarkov location ids, with the names players know them by
+    private static readonly (string Id, string Name)[] Maps =
+    {
+        ("bigmap", "Customs"),
+        ("factory4_day", "Factory (day)"),
+        ("factory4_night", "Factory (night)"),
+        ("interchange", "Interchange"),
+        ("lighthouse", "Lighthouse"),
+        ("rezervbase", "Reserve"),
+        ("sandbox", "Ground Zero"),
+        ("shoreline", "Shoreline"),
+        ("tarkovstreets", "Streets of Tarkov"),
+        ("woods", "Woods"),
+    };
+
+    private const double ReturnMargin = 1.25; // Matches ReturnMargin in the client's NyanDefendLayer
+    private const double FitWidth = 900;
+    private const double FitHeight = 640;
+    private const double Padding = 15;
+
+    private Dictionary<string, List<NyanPoi>> _pois = new(StringComparer.OrdinalIgnoreCase);
+    private List<SpawnPoint> _points = new();
+    private string _map = "bigmap";
+    private NyanPoi? _selected;
+    private bool _dirty;
+    private string? _status;
+    private Severity _statusSeverity = Severity.Success;
+    private string? _spawnWarning;
+    private double _zoom = 1;
+    private double _minX, _maxX, _minZ, _maxZ;
+    private double _fit = 1;
+    private MapImage _image = Images["bigmap"];
+    private bool _showSpawnPoints;
+
+    private DragMode _dragMode;
+    private NyanPoi? _dragPoi;
+    private double _dragStartClientX, _dragStartClientY, _dragStartX, _dragStartZ, _dragStartRadius;
+
+    private double Scale => _fit * _zoom;
+    private double SpanH => _image.Rotation == 90 ? _maxZ - _minZ : _maxX - _minX;
+    private double SpanV => _image.Rotation == 90 ? _maxX - _minX : _maxZ - _minZ;
+    private double SvgWidth => SpanH * Scale;
+    private double SvgHeight => SpanV * Scale;
+
+    private List<NyanPoi> CurrentPois
+    {
+        get
+        {
+            if (!_pois.TryGetValue(_map, out List<NyanPoi>? list))
+            {
+                list = new List<NyanPoi>();
+                _pois[_map] = list;
+            }
+            return list;
+        }
+    }
+
+    private bool IsValid => _pois.Values.SelectMany(list => list).All(poi =>
+        !string.IsNullOrWhiteSpace(poi.Name) && poi.Radius >= NyanPoiStore.MinRadius && poi.Radius <= NyanPoiStore.MaxRadius);
+
+    protected override void OnInitialized()
+    {
+        _pois = Store.GetAll();
+        LoadMap();
+    }
+
+    private void SelectMap(string map)
+    {
+        _map = map;
+        _selected = null;
+        LoadMap();
+    }
+
+    private void LoadMap()
+    {
+        _image = Images[_map];
+        _points = ReadSpawnPoints(_map);
+        _spawnWarning = BuildSpawnWarning(_map);
+
+        IEnumerable<(double X, double Z)> extents = _points.Select(point => (point.X, point.Z))
+            .Concat(CurrentPois.SelectMany(poi => new[] { (poi.X - poi.Radius, poi.Z - poi.Radius), (poi.X + poi.Radius, poi.Z + poi.Radius) }));
+        List<(double X, double Z)> all = extents.ToList();
+        all.Add((_image.X0, _image.Z0));
+        all.Add((_image.X1, _image.Z1));
+        _minX = all.Min(p => p.X) - Padding;
+        _maxX = all.Max(p => p.X) + Padding;
+        _minZ = all.Min(p => p.Z) - Padding;
+        _maxZ = all.Max(p => p.Z) + Padding;
+        _fit = Math.Min(FitWidth / SpanH, FitHeight / SpanV);
+    }
+
+    private List<SpawnPoint> ReadSpawnPoints(string map)
+    {
+        var points = new List<SpawnPoint>();
+        if (!Locations.GetDictionary().TryGetValue(Locations.GetMappedKey(map), out var location) || location.Base.SpawnPointParams == null)
+        {
+            return points;
+        }
+
+        foreach (var spawn in location.Base.SpawnPointParams)
+        {
+            if (spawn.Position is not { } position)
+            {
+                continue;
+            }
+
+            List<string> categories = spawn.Categories?.ToList() ?? new List<string>();
+            SpawnKind kind = categories.Contains("Boss") ? SpawnKind.Boss
+                : categories.Contains("Bot") || categories.Contains("BotPmc") ? SpawnKind.Bot
+                : SpawnKind.Player;
+            string zone = string.IsNullOrEmpty(spawn.BotZoneName) ? "Player spawn" : spawn.BotZoneName;
+            double x = position.X;
+            double y = position.Y;
+            double z = position.Z;
+            points.Add(new SpawnPoint(x, y, z, kind, $"{zone}: {x:0}, {z:0}"));
+        }
+        return points;
+    }
+
+    // POIs only steer him once he's there, and whether he spawns on a map is set in config.json
+    private string? BuildSpawnWarning(string map)
+    {
+        try
+        {
+            string folder = ModHelper.GetAbsolutePathToModFolder(typeof(NyanPoiStore).Assembly);
+            NyanBossConfig config = NyanBossConfig.Load(folder);
+            List<string> missing = NyanPoiStore.LocationsFor(map)
+                .Where(id => !config.Spawns.TryGetValue(id, out NyanBossSpawn? spawn) || spawn.Chance <= 0)
+                .ToList();
+            return missing.Count == 0
+                ? null
+                : $"POIs saved here won't take effect until config.json gives {string.Join(" and ", missing.Select(id => $"\"{id}\""))} a spawn chance.";
+        }
+        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException)
+        {
+            return $"Could not read config.json to check his spawn chance here: {ex.Message}";
+        }
+    }
+
+    private void BeginDrag(MouseEventArgs e, NyanPoi poi, DragMode mode)
+    {
+        _selected = poi;
+        _dragPoi = poi;
+        _dragMode = mode;
+        _dragStartClientX = e.ClientX;
+        _dragStartClientY = e.ClientY;
+        _dragStartX = poi.X;
+        _dragStartZ = poi.Z;
+        _dragStartRadius = poi.Radius;
+    }
+
+    // Uses how far the mouse has moved rather than where it is, so it holds up when the map is scrolled or zoomed
+    private void OnMouseMove(MouseEventArgs e)
+    {
+        if (_dragMode == DragMode.None || _dragPoi == null)
+        {
+            return;
+        }
+
+        double dx = (e.ClientX - _dragStartClientX) / Scale;
+        double dz = (e.ClientY - _dragStartClientY) / Scale;
+        if (_dragMode == DragMode.Move)
+        {
+            (double moveX, double moveZ) = _image.Rotation == 90 ? (-dz, -dx) : (-dx, dz);
+            _dragPoi.X = Math.Round(Math.Clamp(_dragStartX + moveX, _minX, _maxX));
+            _dragPoi.Z = Math.Round(Math.Clamp(_dragStartZ + moveZ, _minZ, _maxZ));
+        }
+        else
+        {
+            _dragPoi.Radius = Math.Round(Math.Clamp(_dragStartRadius + dx, NyanPoiStore.MinRadius, NyanPoiStore.MaxRadius));
+        }
+        _dirty = true;
+    }
+
+    private void EndDrag()
+    {
+        if (_dragMode == DragMode.Move && _dragPoi != null && (_dragPoi.X != _dragStartX || _dragPoi.Z != _dragStartZ))
+        {
+            _dragPoi.Y = NearestHeight(_dragPoi.X, _dragPoi.Z);
+        }
+        _dragMode = DragMode.None;
+        _dragPoi = null;
+    }
+
+    // The map is flat here but the game isn't: he looks for ground near this height, so it follows the closest known spawn point
+    private double NearestHeight(double x, double z)
+    {
+        return _points.Count == 0
+            ? 0
+            : Math.Round(_points.MinBy(point => (point.X - x) * (point.X - x) + (point.Z - z) * (point.Z - z))!.Y);
+    }
+
+    private void AddPoi()
+    {
+        double x = Math.Round((_minX + _maxX) / 2);
+        double z = Math.Round((_minZ + _maxZ) / 2);
+        var poi = new NyanPoi
+        {
+            Name = $"POI {CurrentPois.Count + 1}",
+            X = x,
+            Y = NearestHeight(x, z),
+            Z = z,
+            Radius = 50,
+        };
+        CurrentPois.Add(poi);
+        _selected = poi;
+        _dirty = true;
+    }
+
+    private void DeleteSelected()
+    {
+        if (_selected != null)
+        {
+            CurrentPois.Remove(_selected);
+            _selected = null;
+            _dirty = true;
+        }
+    }
+
+    private void Save()
+    {
+        try
+        {
+            foreach (List<NyanPoi> list in _pois.Values)
+            {
+                list.ForEach(poi => poi.Name = poi.Name.Trim());
+            }
+
+            // Maps left empty are dropped so the file only lists maps that have POIs
+            Store.Save(_pois.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));
+            _dirty = false;
+            _statusSeverity = Severity.Success;
+            _status = "Saved. These POIs apply from the next raid.";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            _statusSeverity = Severity.Error;
+            _status = $"Could not save: {ex.Message}";
+        }
+    }
+
+    private void Revert()
+    {
+        _pois = Store.GetAll();
+        _selected = null;
+        _dirty = false;
+        _status = null;
+        LoadMap();
+    }
+
+    private void MarkDirty()
+    {
+        _dirty = true;
+    }
+
+    // Follows tarkov.dev's projection, so POIs line up with the map image
+    private (double X, double Y) ToPx(double x, double z)
+    {
+        return _image.Rotation == 90
+            ? ((_maxZ - z) * Scale, (_maxX - x) * Scale)
+            : ((_maxX - x) * Scale, (z - _minZ) * Scale);
+    }
+
+    private static string F(double value) => value.ToString("0.#", CultureInfo.InvariantCulture);
+}

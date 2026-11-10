@@ -11,13 +11,13 @@
     "C:\\Users\\tommy\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "0.4.0",
+    "version": "0.6.2",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\Client\\NyanBoss.Client.csproj",
+      "projectUniqueName": "c:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\Client\\NyanBoss.Client.csproj",
       "projectName": "NyanBoss.Client",
-      "projectPath": "C:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\Client\\NyanBoss.Client.csproj",
+      "projectPath": "c:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\Client\\NyanBoss.Client.csproj",
       "packagesPath": "C:\\Users\\tommy\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\Client\\obj\\",
+      "outputPath": "c:\\Users\\tommy\\Desktop\\Code\\SPT MODS\\NyanBoss\\Client\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\tommy\\AppData\\Roaming\\NuGet\\NuGet.Config"

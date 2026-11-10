@@ -11,22 +11,26 @@ using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils.Cloners;
+using SPTarkov.Server.Web;
 
 namespace NyanBoss;
 
-public record ModMetadata : IModMetadata
+public record ModMetadata : IModMetadata, IModBlazorMetadata
 {
     public string ModGuid { get; init; } = "com.pmot.nyanboss";
     public string Name { get; init; } = "NyanBoss";
     public string Author { get; init; } = "P_moT";
     public List<string>? Contributors { get; init; }
-    public SemanticVersioning.Version Version { get; init; } = new("0.4.0");
+    public SemanticVersioning.Version Version { get; init; } = new("0.6.2");
     public SemanticVersioning.Range SptVersion { get; init; } = new("4.1.6");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
     public string? Url { get; init; }
     public string License { get; init; } = "GPL-3.0-only";
     public bool HasPrepatcher { get; init; } = false;
+    public string? WWWRootUrl { get; init; } = "nyanboss-static";
+    public string? HomePage { get; init; } = "/nyanboss";
+    public string? HomePageDescription { get; init; } = "Place and resize the POIs NyanBoss defends on each map.";
 }
 
 public class NyanBossConfig
@@ -34,6 +38,12 @@ public class NyanBossConfig
     public bool Enabled { get; set; } = true;
     public string GearSourceBotType { get; set; } = "bossknight";
     public Dictionary<string, NyanBossSpawn> Spawns { get; set; } = new();
+
+    public static NyanBossConfig Load(string modFolder)
+    {
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        return JsonSerializer.Deserialize<NyanBossConfig>(File.ReadAllText(Path.Combine(modFolder, "config.json")), options) ?? new NyanBossConfig();
+    }
 }
 
 public class NyanBossSpawn
@@ -57,7 +67,7 @@ public class NyanBossLoader(
 
     public Task OnLoadAsync(CancellationToken cancellationToken)
     {
-        NyanBossConfig config = LoadConfig();
+        NyanBossConfig config = NyanBossConfig.Load(modHelper.GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly()));
         if (!config.Enabled)
         {
             logger.Info("[NyanBoss] Disabled in config");
@@ -115,12 +125,5 @@ public class NyanBossLoader(
 
         logger.Success($"[NyanBoss] Registered '{RoleName}' with gear from '{config.GearSourceBotType}', spawn entries added on {added} map(s)");
         return Task.CompletedTask;
-    }
-
-    private NyanBossConfig LoadConfig()
-    {
-        string path = Path.Combine(modHelper.GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly()), "config.json");
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        return JsonSerializer.Deserialize<NyanBossConfig>(File.ReadAllText(path), options) ?? new NyanBossConfig();
     }
 }

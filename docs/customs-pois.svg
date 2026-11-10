@@ -27,10 +27,10 @@ svg{--surface:#fcfcfb;--text1:#0b0b0b;--text2:#52514e;--grid:#e6e5e0;--other:#a3
 <line class="grid" x1="56" x2="930.5" y1="301.8" y2="301.8"/><text class="ax" x="48" y="305.8" text-anchor="end">100</text>
 <line class="grid" x1="56" x2="930.5" y1="136.8" y2="136.8"/><text class="ax" x="48" y="140.8" text-anchor="end">200</text>
 <text class="ax" x="930.5" y="874.0" text-anchor="end">X (metres)</text><text class="ax" x="48" y="104" text-anchor="end">Z</text>
-<circle cx="551.0" cy="598.8" r="123.8" fill="none" stroke="var(--s1)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".7"/>
-<circle cx="551.0" cy="598.8" r="99.0" fill="var(--s1)" fill-opacity=".14" stroke="var(--s1)" stroke-width="2"><title>Scav Base East: centre 260, -80, radius 60 m</title></circle>
-<circle cx="452.0" cy="689.5" r="123.8" fill="none" stroke="var(--s2)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".7"/>
-<circle cx="452.0" cy="689.5" r="99.0" fill="var(--s2)" fill-opacity=".14" stroke="var(--s2)" stroke-width="2"><title>Scav Base Centre: centre 200, -135, radius 60 m</title></circle>
+<circle cx="551.0" cy="598.8" r="103.1" fill="none" stroke="var(--s1)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".7"/>
+<circle cx="551.0" cy="598.8" r="82.5" fill="var(--s1)" fill-opacity=".14" stroke="var(--s1)" stroke-width="2"><title>Scav Base East: centre 260, -80, radius 50 m</title></circle>
+<circle cx="452.0" cy="689.5" r="103.1" fill="none" stroke="var(--s2)" stroke-width="1.5" stroke-dasharray="5 5" opacity=".7"/>
+<circle cx="452.0" cy="689.5" r="82.5" fill="var(--s2)" fill-opacity=".14" stroke="var(--s2)" stroke-width="2"><title>Scav Base Centre: centre 200, -135, radius 50 m</title></circle>
 <g><circle class="other" cx="721.2" cy="647.0" r="3.5"/><circle class="hit" cx="721.2" cy="647.0" r="9"/><title>ZoneFactoryCenter: 363, -109</title></g>
 <g><circle class="other" cx="432.3" cy="469.0" r="3.5"/><circle class="hit" cx="432.3" cy="469.0" r="9"/><title>ZoneCrossRoad: 188, -1</title></g>
 <g><circle class="other" cx="222.1" cy="578.4" r="3.5"/><circle class="hit" cx="222.1" cy="578.4" r="9"/><title>ZoneTankSquare: 61, -68</title></g>
@@ -213,11 +213,11 @@ svg{--surface:#fcfcfb;--text1:#0b0b0b;--text2:#52514e;--grid:#e6e5e0;--other:#a3
 <text class="zone halo" x="790.2" y="689.5" text-anchor="middle">Factory (ZoneFactoryCenter)</text>
 <text class="zone halo" x="262.2" y="503.0" text-anchor="middle">Tank Square</text>
 <text class="zone halo" x="130.2" y="602.0" text-anchor="middle">Wade</text>
-<text class="poi halo" x="666.5" y="499.8" text-anchor="start">Scav Base East</text><text class="poisub halo" x="666.5" y="514.8" text-anchor="start">260, -80 · 60 m radius</text>
-<text class="poi halo" x="303.5" y="816.5" text-anchor="middle">Scav Base Centre</text><text class="poisub halo" x="303.5" y="831.5" text-anchor="middle">200, -135 · 60 m radius</text>
+<text class="poi halo" x="666.5" y="499.8" text-anchor="start">Scav Base East</text><text class="poisub halo" x="666.5" y="514.8" text-anchor="start">260, -80 · 50 m radius</text>
+<text class="poi halo" x="303.5" y="816.5" text-anchor="middle">Scav Base Centre</text><text class="poisub halo" x="303.5" y="831.5" text-anchor="middle">200, -135 · 50 m radius</text>
 <g transform="translate(56,78)"><circle cx="4" r="5" fill="var(--s1)" fill-opacity=".14" stroke="var(--s1)" stroke-width="2"/><text class="leg" x="16" y="4">East</text></g>
 <g transform="translate(118,78)"><circle cx="4" r="5" fill="var(--s2)" fill-opacity=".14" stroke="var(--s2)" stroke-width="2"/><text class="leg" x="16" y="4">Centre</text></g>
-<g transform="translate(192,78)"><line x1="-3" x2="11" stroke="var(--text2)" stroke-width="1.5" stroke-dasharray="4 3"/><text class="leg" x="16" y="4">Returns past this (75 m)</text></g>
+<g transform="translate(192,78)"><line x1="-3" x2="11" stroke="var(--text2)" stroke-width="1.5" stroke-dasharray="4 3"/><text class="leg" x="16" y="4">Returns past this (62.5 m)</text></g>
 <g transform="translate(368,78)"><circle class="boss" cx="4" r="5"/><text class="leg" x="16" y="4">Scav base: boss spawn</text></g>
 <g transform="translate(524,78)"><circle class="nonboss" cx="4" r="5"/><text class="leg" x="16" y="4">Scav base: other bot</text></g>
 <g transform="translate(670,78)"><circle class="other" cx="4" r="3.5"/><text class="leg" x="16" y="4">Other zones</text></g>

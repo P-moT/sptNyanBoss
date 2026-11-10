@@ -6,15 +6,56 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "NyanBoss/0.4.0": {
+      "NyanBoss/0.6.2": {
         "dependencies": {
           "SPTarkov.Common": "4.1.2",
           "SPTarkov.DI": "4.1.2",
           "SPTarkov.Reflection": "4.1.2",
-          "SPTarkov.Server.Core": "4.1.2"
+          "SPTarkov.Server.Core": "4.1.2",
+          "SPTarkov.Server.Web": "4.1.2"
         },
         "runtime": {
           "NyanBoss.dll": {}
+        }
+      },
+      "Argon2Sharp/4.0.1": {
+        "runtime": {
+          "lib/net10.0/Argon2Sharp.dll": {
+            "assemblyVersion": "4.0.1.0",
+            "fileVersion": "4.0.1.0"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/linux-arm64/native/libargon2_sharp_core.so": {
+            "rid": "linux-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libargon2_sharp_core.so": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx-arm64/native/libargon2_sharp_core.dylib": {
+            "rid": "osx-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx-x64/native/libargon2_sharp_core.dylib": {
+            "rid": "osx-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-arm64/native/argon2_sharp_core.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/argon2_sharp_core.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
         }
       },
       "FastCloner/3.5.5": {
@@ -126,6 +167,14 @@
           "lib/net10.0/MonoMod.Utils.dll": {
             "assemblyVersion": "25.0.12.0",
             "fileVersion": "25.0.12.0"
+          }
+        }
+      },
+      "MudBlazor/9.7.0": {
+        "runtime": {
+          "lib/net10.0/MudBlazor.dll": {
+            "assemblyVersion": "9.7.0.0",
+            "fileVersion": "9.7.0.0"
           }
         }
       },
@@ -252,6 +301,19 @@
           }
         }
       },
+      "SPTarkov.Server.Web/4.1.2": {
+        "dependencies": {
+          "Argon2Sharp": "4.0.1",
+          "MudBlazor": "9.7.0",
+          "SPTarkov.Server.Core": "4.1.2"
+        },
+        "runtime": {
+          "lib/net10.0/SPTarkov.Server.Web.dll": {
+            "assemblyVersion": "4.1.0.0",
+            "fileVersion": "4.1.0.0"
+          }
+        }
+      },
       "System.IO.Hashing/10.0.9": {
         "runtime": {
           "lib/net10.0/System.IO.Hashing.dll": {
@@ -291,10 +353,17 @@
     }
   },
   "libraries": {
-    "NyanBoss/0.4.0": {
+    "NyanBoss/0.6.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "Argon2Sharp/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ROzDpP6VzJI2wHaK9Z6Oyl/wU1pojZAcWzLJEstQj0e2gCzSnJOrQFq2bm+TkUVsMhlq2tUqYykBQMlwGFQcsg==",
+      "path": "argon2sharp/4.0.1",
+      "hashPath": "argon2sharp.4.0.1.nupkg.sha512"
     },
     "FastCloner/3.5.5": {
       "type": "package",
@@ -359,6 +428,13 @@
       "path": "monomod.utils/25.0.12",
       "hashPath": "monomod.utils.25.0.12.nupkg.sha512"
     },
+    "MudBlazor/9.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-uWOgNn9B556J/TL8KFoSqpA3YD2heqOpK5etcofwlj1RiEX1IDy0NmwYE9urlTUQ8zProEK5GqwTBnoObFPN3g==",
+      "path": "mudblazor/9.7.0",
+      "hashPath": "mudblazor.9.7.0.nupkg.sha512"
+    },
     "SemanticVersioning/3.0.0": {
       "type": "package",
       "serviceable": true,
@@ -414,6 +490,13 @@
       "sha512": "sha512-EZ+gKzlmvLLAAHyCcrXQmt9J9LAPTG45WHSnlQwUbtwF20/LfDK+HIPJKDnb4/NKvSNgJSoMc+jrW7Ls06H1pw==",
       "path": "sptarkov.server.core/4.1.2",
       "hashPath": "sptarkov.server.core.4.1.2.nupkg.sha512"
+    },
+    "SPTarkov.Server.Web/4.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XMH0QIN/cyKZifAmz2EbI8uhgdKEQflXvQKu6PyDZblaivsHIMxQE1EHQsvzWZSqTFilxaNDDF5G2chwabYKpA==",
+      "path": "sptarkov.server.web/4.1.2",
+      "hashPath": "sptarkov.server.web.4.1.2.nupkg.sha512"
     },
     "System.IO.Hashing/10.0.9": {
       "type": "package",

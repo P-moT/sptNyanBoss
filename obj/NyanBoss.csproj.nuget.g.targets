@@ -3,5 +3,6 @@
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <Import Project="$(NuGetPackageRoot)monomod.core\1.3.4\buildTransitive\MonoMod.Core.targets" Condition="Exists('$(NuGetPackageRoot)monomod.core\1.3.4\buildTransitive\MonoMod.Core.targets')" />
     <Import Project="$(NuGetPackageRoot)monomod.runtimedetour\25.3.4\buildTransitive\MonoMod.RuntimeDetour.targets" Condition="Exists('$(NuGetPackageRoot)monomod.runtimedetour\25.3.4\buildTransitive\MonoMod.RuntimeDetour.targets')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.aspnetcore.app.internal.assets\10.0.12\buildTransitive\Microsoft.AspNetCore.App.Internal.Assets.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.aspnetcore.app.internal.assets\10.0.12\buildTransitive\Microsoft.AspNetCore.App.Internal.Assets.targets')" />
   </ImportGroup>
 </Project>

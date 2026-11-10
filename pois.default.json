@@ -1,7 +1,7 @@
 {
   "bigmap": [
-    { "Name": "Scav Base East", "X": 260, "Y": 1, "Z": -80, "Radius": 60 },
-    { "Name": "Scav Base Centre", "X": 200, "Y": 2, "Z": -135, "Radius": 60 }
+    { "Name": "Scav Base East", "X": 260, "Y": 1, "Z": -80, "Radius": 50 },
+    { "Name": "Scav Base Centre", "X": 200, "Y": 2, "Z": -135, "Radius": 50 }
   ],
   "factory4_day": [
     { "Name": "South", "X": 5, "Y": 0, "Z": -35, "Radius": 35 },

@@ -23,3 +23,13 @@ C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\refint\NyanBoss.dll
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\NyanBoss.pdb
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\ref\NyanBoss.dll
 C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\NyanBoss.sourcelink.json
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\EmbeddedAttribute.cs
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\ValidatableTypeAttribute.cs
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\bin\Release\NyanBoss\pois.default.json
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\bin\Release\NyanBoss\NyanBoss.staticwebassets.runtime.json
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\compressed\tzxjg6is5z-{0}-dwqonprjtj-dwqonprjtj.gz
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\compressed\0wz98yz2xy-{0}-obq49z3y15-obq49z3y15.gz
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\compressed\o7k4cxtn0u-{0}-xnwqnwgm1t-xnwqnwgm1t.gz
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\compressed\59srdf5yw1-{0}-5dc8kb9sva-5dc8kb9sva.gz
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\compressed\2prkvw58dh-{0}-2s4thd11jj-2s4thd11jj.gz
+C:\Users\tommy\Desktop\Code\SPT MODS\NyanBoss\obj\Release\compressed\iq9wsg50as-{0}-n2ugjmwn4b-n2ugjmwn4b.gz
