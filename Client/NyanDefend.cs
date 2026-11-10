@@ -24,6 +24,7 @@ public class NyanPoi
     public float Y;
     public float Z;
     public float Radius;
+    public float Weight = 1; // Older servers don't send it, so it stays 1 and every POI counts the same
 
     [JsonIgnore]
     public Vector3 Position => new Vector3(X, Y, Z);
@@ -118,7 +119,7 @@ internal class NyanDefendState
         _pois = NyanPois.ForCurrentMap();
         if (HasPois)
         {
-            _current = UnityEngine.Random.Range(0, _pois.Count);
+            _current = PickWeighted(-1);
             _nextRotation = Time.time + Plugin.PoiRotationSeconds.Value;
             bot.GetPlayer.BeingHitAction += (_, _, _) => ProvokedUntil = Time.time + Plugin.ProvokedSeconds.Value;
             Plugin.Log.LogInfo($"Defending {Current.Name} of {_pois.Count} POI(s) on {Singleton<GameWorld>.Instance.LocationId}");
@@ -219,9 +220,41 @@ internal class NyanDefendState
         {
             return;
         }
-        _current = (_current + UnityEngine.Random.Range(1, _pois.Count)) % _pois.Count;
         _nextRotation = Time.time + Plugin.PoiRotationSeconds.Value;
+        int next = PickWeighted(_current);
+        if (next == _current)
+        {
+            return; // Every other POI has weight 0, so he stays put
+        }
+        _current = next;
         Plugin.Log.LogInfo($"Moving to defend {Current.Name}");
+    }
+
+    // A POI chosen by weight, never the excluded one. If every weight is 0 they all count the same, set on the SIC page.
+    private int PickWeighted(int exclude)
+    {
+        var candidates = Enumerable.Range(0, _pois.Count).Where(i => i != exclude).ToList();
+        if (candidates.Count == 0)
+        {
+            return exclude;
+        }
+        bool anyWeight = _pois.Any(poi => poi.Weight > 0);
+        float Weigh(int i) => anyWeight ? Mathf.Max(0f, _pois[i].Weight) : 1f;
+        float total = candidates.Sum(Weigh);
+        if (total <= 0f)
+        {
+            return exclude;
+        }
+        float roll = UnityEngine.Random.value * total;
+        foreach (int i in candidates)
+        {
+            roll -= Weigh(i);
+            if (roll < 0f)
+            {
+                return i;
+            }
+        }
+        return candidates.Last(i => Weigh(i) > 0f);
     }
 }
 

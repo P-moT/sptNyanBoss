@@ -43,7 +43,7 @@
 <div class="nyan-page">
     <div>
         <MudText Typo="Typo.h5">NyanBoss POIs</MudText>
-        <MudText Typo="Typo.body2">He spawns inside one of these circles and patrols there. Drag a circle to move it, or drag the handle on its right edge to resize it. Saved changes apply from the next raid, without restarting the game.</MudText>
+        <MudText Typo="Typo.body2">Set how likely he is to spawn on each map, then place the circles he spawns in and patrols. Each POI's weight sets how often he picks it, both when he spawns and each time he moves on. Drag a circle to move it, or drag the handle on its right edge to resize it. Saved changes apply from the next raid, without restarting the game.</MudText>
     </div>
 
     @if (Store.LoadError != null)
@@ -54,9 +54,10 @@
     {
         <MudAlert Severity="_statusSeverity" ShowCloseIcon="true" CloseIconClicked="() => _status = null">@_status</MudAlert>
     }
-    @if (_pois.Count > 0 && _spawnWarning != null)
+
+    @if (CurrentMap.Chance > 0 && CurrentPois.Count == 0)
     {
-        <MudAlert Severity="Severity.Warning">@_spawnWarning</MudAlert>
+        <MudAlert Severity="Severity.Warning">With no POIs defined, he spawns at this map's default boss zones and uses his default behaviour instead of patrolling. Add a POI to choose where he spawns.</MudAlert>
     }
 
     <div class="nyan-row">
@@ -66,6 +67,9 @@
                 <MudSelectItem T="string" Value="@id">@name</MudSelectItem>
             }
         </MudSelect>
+        <MudNumericField T="double" Label="Spawn chance (%)" Value="CurrentMap.Chance" ValueChanged="SetChance" Min="0" Max="100" Step="5"
+                         Variant="Variant.Outlined" Margin="Margin.Dense" Style="width: 150px"
+                         HelperText="@(CurrentMap.Chance <= 0 ? "He won't spawn here" : null)" />
         <MudSelect T="double" Label="Zoom" @bind-Value="_zoom" Variant="Variant.Outlined" Dense="true" Style="min-width: 110px">
             <MudSelectItem T="double" Value="1d">100%</MudSelectItem>
             <MudSelectItem T="double" Value="2d">200%</MudSelectItem>
@@ -137,13 +141,17 @@
 
             @if (CurrentPois.Count == 0)
             {
-                <MudText Typo="Typo.body2">No POIs on this map. Without any, he uses his default behaviour here.</MudText>
+                <MudText Typo="Typo.body2">No POIs on this map.</MudText>
+            }
+            else if (CurrentPois.All(poi => poi.Weight <= 0))
+            {
+                <MudText Typo="Typo.body2">Every POI here has weight 0, so he treats them all as equal.</MudText>
             }
             @foreach (NyanPoi poi in CurrentPois)
             {
                 <button type="button" class="nyan-list-item @(ReferenceEquals(poi, _selected) ? "nyan-list-item-selected" : "")" @onclick="() => _selected = poi">
                     <span>@(string.IsNullOrWhiteSpace(poi.Name) ? "(unnamed)" : poi.Name)</span>
-                    <span>@poi.Radius.ToString("0", CultureInfo.InvariantCulture) m</span>
+                    <span>@poi.Radius.ToString("0", CultureInfo.InvariantCulture) m · @Share(poi)</span>
                 </button>
             }
 
@@ -158,6 +166,8 @@
                                      HelperText="Height" />
                 </div>
                 <MudNumericField T="double" Label="Radius (m)" @bind-Value="_selected.Radius" @bind-Value:after="MarkDirty" Min="NyanPoiStore.MinRadius" Max="NyanPoiStore.MaxRadius" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                <MudNumericField T="double" Label="Weight" @bind-Value="_selected.Weight" @bind-Value:after="MarkDirty" Min="0" Max="NyanPoiStore.MaxWeight" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                 HelperText="@($"Picked {Share(_selected)} of the time on this map. 0 is never.")" />
                 <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteSelected">Delete POI</MudButton>
             }
 
@@ -218,14 +228,13 @@
     private const double FitHeight = 640;
     private const double Padding = 15;
 
-    private Dictionary<string, List<NyanPoi>> _pois = new(StringComparer.OrdinalIgnoreCase);
+    private Dictionary<string, NyanMapSettings> _maps = new(StringComparer.OrdinalIgnoreCase);
     private List<SpawnPoint> _points = new();
     private string _map = "bigmap";
     private NyanPoi? _selected;
     private bool _dirty;
     private string? _status;
     private Severity _statusSeverity = Severity.Success;
-    private string? _spawnWarning;
     private double _zoom = 1;
     private double _minX, _maxX, _minZ, _maxZ;
     private double _fit = 1;
@@ -242,25 +251,29 @@
     private double SvgWidth => SpanH * Scale;
     private double SvgHeight => SpanV * Scale;
 
-    private List<NyanPoi> CurrentPois
+    private NyanMapSettings CurrentMap
     {
         get
         {
-            if (!_pois.TryGetValue(_map, out List<NyanPoi>? list))
+            if (!_maps.TryGetValue(_map, out NyanMapSettings? settings))
             {
-                list = new List<NyanPoi>();
-                _pois[_map] = list;
+                settings = new NyanMapSettings();
+                _maps[_map] = settings;
             }
-            return list;
+            return settings;
         }
     }
 
-    private bool IsValid => _pois.Values.SelectMany(list => list).All(poi =>
-        !string.IsNullOrWhiteSpace(poi.Name) && poi.Radius >= NyanPoiStore.MinRadius && poi.Radius <= NyanPoiStore.MaxRadius);
+    private List<NyanPoi> CurrentPois => CurrentMap.Pois;
+
+    private bool IsValid => _maps.Values.All(map => map.Chance >= 0 && map.Chance <= 100)
+        && _maps.Values.SelectMany(map => map.Pois).All(poi =>
+            !string.IsNullOrWhiteSpace(poi.Name) && poi.Radius >= NyanPoiStore.MinRadius && poi.Radius <= NyanPoiStore.MaxRadius
+            && poi.Weight >= 0 && poi.Weight <= NyanPoiStore.MaxWeight);
 
     protected override void OnInitialized()
     {
-        _pois = Store.GetAll();
+        _maps = Store.GetAll();
         LoadMap();
     }
 
@@ -275,7 +288,6 @@
     {
         _image = Images[_map];
         _points = ReadSpawnPoints(_map);
-        _spawnWarning = BuildSpawnWarning(_map);
 
         IEnumerable<(double X, double Z)> extents = _points.Select(point => (point.X, point.Z))
             .Concat(CurrentPois.SelectMany(poi => new[] { (poi.X - poi.Radius, poi.Z - poi.Radius), (poi.X + poi.Radius, poi.Z + poi.Radius) }));
@@ -317,24 +329,18 @@
         return points;
     }
 
-    // POIs only steer him once he's there, and whether he spawns on a map is set in config.json
-    private string? BuildSpawnWarning(string map)
+    private void SetChance(double chance)
     {
-        try
-        {
-            string folder = ModHelper.GetAbsolutePathToModFolder(typeof(NyanPoiStore).Assembly);
-            NyanBossConfig config = NyanBossConfig.Load(folder);
-            List<string> missing = NyanPoiStore.LocationsFor(map)
-                .Where(id => !config.Spawns.TryGetValue(id, out NyanBossSpawn? spawn) || spawn.Chance <= 0)
-                .ToList();
-            return missing.Count == 0
-                ? null
-                : $"POIs saved here won't take effect until config.json gives {string.Join(" and ", missing.Select(id => $"\"{id}\""))} a spawn chance.";
-        }
-        catch (Exception ex) when (ex is IOException or System.Text.Json.JsonException)
-        {
-            return $"Could not read config.json to check his spawn chance here: {ex.Message}";
-        }
+        CurrentMap.Chance = Math.Clamp(Math.Round(chance), 0, 100);
+        _dirty = true;
+    }
+
+    // How often he picks this POI on its map, as the client works it out: by weight, or evenly if every weight is 0
+    private string Share(NyanPoi poi)
+    {
+        double total = CurrentPois.Sum(other => Math.Max(0, other.Weight));
+        double share = total <= 0 ? 1.0 / CurrentPois.Count : Math.Max(0, poi.Weight) / total;
+        return share.ToString("0%", CultureInfo.InvariantCulture);
     }
 
     private void BeginDrag(MouseEventArgs e, NyanPoi poi, DragMode mode)
@@ -421,16 +427,17 @@
     {
         try
         {
-            foreach (List<NyanPoi> list in _pois.Values)
+            foreach (NyanMapSettings map in _maps.Values)
             {
-                list.ForEach(poi => poi.Name = poi.Name.Trim());
+                map.Pois.ForEach(poi => poi.Name = poi.Name.Trim());
             }
 
-            // Maps left empty are dropped so the file only lists maps that have POIs
-            Store.Save(_pois.Where(pair => pair.Value.Count > 0).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));
+            // Maps with nothing set are dropped so the file only lists maps that have a chance, POIs or a zone
+            Store.Save(_maps.Where(pair => pair.Value.Chance > 0 || pair.Value.Pois.Count > 0 || !string.IsNullOrWhiteSpace(pair.Value.Zone))
+                .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));
             _dirty = false;
             _statusSeverity = Severity.Success;
-            _status = "Saved. These POIs apply from the next raid.";
+            _status = "Saved. These settings apply from the next raid.";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -441,7 +448,7 @@
 
     private void Revert()
     {
-        _pois = Store.GetAll();
+        _maps = Store.GetAll();
         _selected = null;
         _dirty = false;
         _status = null;

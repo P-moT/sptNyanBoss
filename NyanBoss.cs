@@ -18,6 +18,11 @@ using Preset = SPTarkov.Server.Core.Models.Spt.Tables.Preset;
 using Prefab = SPTarkov.Server.Core.Models.Eft.Common.Tables.Prefab;
 using TemplateItemProperties = SPTarkov.Server.Core.Models.Eft.Common.Tables.TemplateItemProperties;
 using SPTarkov.Server.Core.Services.Modding.Custom;
+using SPTarkov.Server.Core.Helpers.Bot;
+using SPTarkov.Server.Core.Generators.Loot;
+using SPTarkov.Server.Core.Models.Spt.Bots;
+using BotBaseInventory = SPTarkov.Server.Core.Models.Eft.Common.Tables.BotBaseInventory;
+using Item = SPTarkov.Server.Core.Models.Eft.Common.Tables.Item;
 using SPTarkov.Server.Core.Models.Spt.Mod;
 using SPTarkov.Server.Core.Models.Spt.Tables;
 using SPTarkov.Server.Core.Utils.Cloners;
@@ -34,7 +39,7 @@ public record ModMetadata : IModMetadata, IModBlazorMetadata
     public string Name { get; init; } = "NyanBoss";
     public string Author { get; init; } = "P_moT";
     public List<string>? Contributors { get; init; }
-    public SemanticVersioning.Version Version { get; init; } = new("0.7.5");
+    public SemanticVersioning.Version Version { get; init; } = new("0.7.6");
     public SemanticVersioning.Range SptVersion { get; init; } = new("4.1.6");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
@@ -50,10 +55,14 @@ public class NyanBossConfig
 {
     public bool Enabled { get; set; } = true;
     public string GearSourceBotType { get; set; } = "bossknight";
+    // Before 0.7.6 each map's spawn chance and zone were set here. They now live in pois.json and are set on the SIC page;
+    // this is only read once, to carry old settings over.
     public Dictionary<string, NyanBossSpawn> Spawns { get; set; } = new();
 
     // Per body part, e.g. "Head": 50. Parts left out keep the gear source's values.
     public Dictionary<string, double> Health { get; set; } = new();
+    public List<NyanBossTrophy> Trophies { get; set; } = new();
+    // Older single-trophy setting, still read so existing configs keep working
     public NyanBossTrophy? Trophy { get; set; }
     public NyanBossLoadout? Loadout { get; set; }
 
@@ -74,10 +83,13 @@ public class NyanBossLoadout
     public List<string> Ammo { get; set; } = new();
 }
 
+// Rolled on its own for every boss: Chance percent to drop, then Min to Max copies
 public class NyanBossTrophy
 {
     public string Item { get; set; } = "";
     public double Chance { get; set; }
+    public int Min { get; set; } = 1;
+    public int Max { get; set; } = 1;
 }
 
 public class NyanBossSpawn
@@ -149,6 +161,8 @@ public class NyanBossLoader(
     LocationTable locationTable,
     ItemHelper itemHelper,
     GlobalTable globalTable,
+    BotGeneratorHelper botGeneratorHelper,
+    NyanPoiStore poiStore,
     ICloner cloner) : IOnLoad
 {
     internal const string RoleName = "bossTest";
@@ -289,23 +303,34 @@ public class NyanBossLoader(
         }
     }
 
-    // Special loot is the first loot the generator places, so the trophy gets a pocket or rig slot before anything else fills them
-    private void ApplyTrophy(BotType botType, NyanBossTrophy? trophy)
+    // Checks the trophy list once at startup. The drops themselves are rolled per boss by NyanTrophyPatch.
+    private List<NyanBossTrophy> ValidTrophies(NyanBossConfig config)
     {
-        if (trophy == null || string.IsNullOrWhiteSpace(trophy.Item) || trophy.Chance <= 0)
+        IEnumerable<NyanBossTrophy> listed = config.Trophies.Count > 0 || config.Trophy == null ? config.Trophies : [config.Trophy];
+        var valid = new List<NyanBossTrophy>();
+        foreach (NyanBossTrophy trophy in listed)
         {
-            return;
+            if (trophy.Chance <= 0 || !IsKnownItem(trophy.Item, "Trophy"))
+            {
+                continue;
+            }
+            if (trophy.Min < 1 || trophy.Max < trophy.Min)
+            {
+                logger.Warning($"[NyanBoss] Trophy '{trophy.Item}' needs min at least 1 and max at least min (got {trophy.Min}-{trophy.Max}), skipped");
+                continue;
+            }
+            valid.Add(new NyanBossTrophy { Item = trophy.Item, Chance = Math.Min(trophy.Chance, 100), Min = trophy.Min, Max = trophy.Max });
         }
-        if (!MongoId.IsValidMongoId(trophy.Item) || !itemHelper.IsValidItem(new MongoId(trophy.Item)))
-        {
-            logger.Warning($"[NyanBoss] Trophy item '{trophy.Item}' is not a valid item, no trophy will drop");
-            return;
-        }
-        double chance = Math.Min(trophy.Chance, 100);
-        botType.BotInventory.Items.SpecialLoot = new Dictionary<MongoId, double> { [new MongoId(trophy.Item)] = 1 };
+        return valid;
+    }
+
+    // The gear source's own special loot would roll on top of the trophies, so it is switched off
+    private static void ClearSpecialLoot(BotType botType)
+    {
+        botType.BotInventory.Items.SpecialLoot = new Dictionary<MongoId, double>();
         botType.BotGeneration.Items.SpecialItems = new GenerationData
         {
-            Weights = new Dictionary<double, double> { [0] = 100 - chance, [1] = chance },
+            Weights = new Dictionary<double, double> { [0] = 1 },
             Whitelist = new Dictionary<MongoId, double>(),
         };
     }
@@ -330,29 +355,17 @@ public class NyanBossLoader(
         botType.LastNames = [];
         ApplyHealth(botType, config.Health);
         ApplyLoadout(botType, config.Loadout, config.GearSourceBotType);
-        ApplyTrophy(botType, config.Trophy);
+        ClearSpecialLoot(botType);
         botTable.Types[BotTypeKey] = botType;
+        List<NyanBossTrophy> trophies = ValidTrophies(config);
+        NyanTrophyPatch.Configure(trophies, botGeneratorHelper, logger);
+        new NyanTrophyPatch().Enable();
 
-        // Validated once here so a typo shows up at startup rather than silently in every raid
-        Dictionary<string, Location> locations = locationTable.GetDictionary();
-        var spawns = new Dictionary<string, NyanBossSpawn>(StringComparer.OrdinalIgnoreCase);
-        foreach ((string map, NyanBossSpawn spawn) in config.Spawns)
-        {
-            if (spawn.Chance <= 0)
-            {
-                continue;
-            }
-            if (!locations.ContainsKey(locationTable.GetMappedKey(map)))
-            {
-                logger.Warning($"[NyanBoss] Unknown map '{map}' in config, skipped");
-                continue;
-            }
-            spawns[map] = spawn;
-        }
-
-        NyanRaidSpawnPatch.Configure(spawns, logger);
+        // Spawn chances and POIs are set on the SIC page and read fresh for every raid, so edits apply without a restart
+        NyanRaidSpawnPatch.Configure(poiStore, logger);
         new NyanRaidSpawnPatch().Enable();
-        logger.Success($"[NyanBoss] Registered '{RoleName}' with gear from '{config.GearSourceBotType}', spawning on {spawns.Count} map(s)");
+        int maps = poiStore.GetAll().Count(pair => pair.Value.Chance > 0);
+        logger.Success($"[NyanBoss] Registered '{RoleName}' with gear from '{config.GearSourceBotType}', spawning on {maps} map(s)");
         return Task.CompletedTask;
     }
 }
@@ -363,12 +376,12 @@ public class NyanBossLoader(
 // Deliberately not [Injectable]: some mods enable every registered patch, and that would enable this one twice.
 public class NyanRaidSpawnPatch : AbstractPatch
 {
-    private static Dictionary<string, NyanBossSpawn> _spawns = new(StringComparer.OrdinalIgnoreCase);
+    private static NyanPoiStore? _store;
     private static ISptLogger<NyanBossLoader>? _logger;
 
-    internal static void Configure(Dictionary<string, NyanBossSpawn> spawns, ISptLogger<NyanBossLoader> logger)
+    internal static void Configure(NyanPoiStore store, ISptLogger<NyanBossLoader> logger)
     {
-        _spawns = spawns;
+        _store = store;
         _logger = logger;
     }
 
@@ -380,7 +393,8 @@ public class NyanRaidSpawnPatch : AbstractPatch
     [PatchPostfix]
     public static void Postfix(string name, LocationBase __result)
     {
-        if (__result == null || !_spawns.TryGetValue(name, out NyanBossSpawn? spawn))
+        NyanMapSettings? settings = _store?.Get(name);
+        if (__result == null || settings == null || settings.Chance <= 0)
         {
             return;
         }
@@ -391,11 +405,19 @@ public class NyanRaidSpawnPatch : AbstractPatch
             return;
         }
 
+        string? zone = string.IsNullOrWhiteSpace(settings.Zone) ? NearestZone(__result, settings.Pois) : settings.Zone;
+        if (zone == null)
+        {
+            _logger?.Warning($"[NyanBoss] No bot zone found on {name}, so he can't spawn there");
+            return;
+        }
+
+        double chance = Math.Min(settings.Chance, 100);
         __result.BossLocationSpawn.Add(new BossLocationSpawn
         {
             BossName = NyanBossLoader.RoleName,
-            BossChance = spawn.Chance,
-            BossZone = spawn.Zone,
+            BossChance = chance,
+            BossZone = zone,
             BossDifficulty = "normal",
             BossEscortType = "followerBully",
             BossEscortDifficulty = "normal",
@@ -411,6 +433,80 @@ public class NyanRaidSpawnPatch : AbstractPatch
             TriggerId = "",
             TriggerName = "",
         });
-        _logger?.Info($"[NyanBoss] Added to this raid on {name}: chance {spawn.Chance}, zone {spawn.Zone}");
+        _logger?.Info($"[NyanBoss] Added to this raid on {name}: chance {chance}, zone {zone}");
+    }
+
+    // He is moved into a POI as soon as he appears, so the zone only needs to be a real one, ideally close by.
+    // Boss zones are preferred, then any bot zone, closest to the centre of the POIs.
+    private static string? NearestZone(LocationBase location, List<NyanPoi> pois)
+    {
+        var points = (location.SpawnPointParams ?? [])
+            .Where(point => !string.IsNullOrEmpty(point.BotZoneName) && point.Position.HasValue)
+            .Select(point => (Zone: point.BotZoneName!, Position: point.Position!.Value, Boss: point.Categories?.Contains("Boss") == true))
+            .ToList();
+        if (points.Count == 0)
+        {
+            return null;
+        }
+        if (pois.Count == 0)
+        {
+            return (points.FirstOrDefault(point => point.Boss).Zone) ?? points[0].Zone;
+        }
+        double x = pois.Average(poi => poi.X);
+        double z = pois.Average(poi => poi.Z);
+        return points
+            .OrderByDescending(point => point.Boss)
+            .ThenBy(point => (point.Position.X - x) * (point.Position.X - x) + (point.Position.Z - z) * (point.Position.Z - z))
+            .First().Zone;
+    }
+}
+// Trophies are rolled one by one for each boss, each with its own chance and count, and placed before his regular loot is
+// generated, so they get first pick of the space in his bag, rig and pockets. Not [Injectable], for the same reason as above.
+public class NyanTrophyPatch : AbstractPatch
+{
+    private static readonly HashSet<EquipmentSlots> Containers = [EquipmentSlots.Backpack, EquipmentSlots.TacticalVest, EquipmentSlots.Pockets];
+    private static List<NyanBossTrophy> _trophies = [];
+    private static BotGeneratorHelper? _helper;
+    private static ISptLogger<NyanBossLoader>? _logger;
+
+    internal static void Configure(List<NyanBossTrophy> trophies, BotGeneratorHelper helper, ISptLogger<NyanBossLoader> logger)
+    {
+        _trophies = trophies;
+        _helper = helper;
+        _logger = logger;
+    }
+
+    protected override MethodBase GetTargetMethod()
+    {
+        return AccessTools.Method(typeof(BotLootGenerator), nameof(BotLootGenerator.GenerateLoot));
+    }
+
+    [PatchPrefix]
+    public static void Prefix(MongoId botId, BotGenerationDetails botGenerationDetails, BotBaseInventory botInventory)
+    {
+        if (_helper == null || _trophies.Count == 0
+            || !string.Equals(botGenerationDetails.Role, NyanBossLoader.RoleName, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+        foreach (NyanBossTrophy trophy in _trophies)
+        {
+            if (Random.Shared.NextDouble() * 100 >= trophy.Chance)
+            {
+                continue;
+            }
+            int count = Random.Shared.Next(trophy.Min, trophy.Max + 1);
+            var template = new MongoId(trophy.Item);
+            for (int i = 0; i < count; i++)
+            {
+                var item = new Item { Id = new MongoId(), Template = template };
+                ItemAddedResult result = _helper.AddItemWithChildrenToEquipmentSlot(botId, Containers, item.Id, template, [item], botInventory);
+                if (result != ItemAddedResult.SUCCESS)
+                {
+                    _logger?.Warning($"[NyanBoss] No room for trophy '{trophy.Item}' ({result}), {count - i} of {count} not added");
+                    break;
+                }
+            }
+        }
     }
 }

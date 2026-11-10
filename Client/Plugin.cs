@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace NyanBoss.Client;
 
-[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.7.5")]
+[BepInPlugin("com.pmot.nyanboss.client", "NyanBoss", "0.7.6")]
 [BepInDependency("com.SPT.core", "4.1.0")]
 [BepInDependency("xyz.drakia.bigbrain")]
 public class Plugin : BaseUnityPlugin

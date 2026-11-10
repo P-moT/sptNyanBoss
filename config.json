@@ -1,11 +1,6 @@
 {
   "enabled": true,
   "gearSourceBotType": "bossknight",
-  "spawns": {
-    "bigmap": { "chance": 100, "zone": "ZoneScavBase" },
-    "factory4_day": { "chance": 0, "zone": "BotZone" },
-    "factory4_night": { "chance": 0, "zone": "BotZone" }
-  },
   "health": {
     "Head": 50,
     "Chest": 140,
@@ -28,5 +23,10 @@
     "weaponPresets": ["619e61e70459e93c12392ba7"],
     "ammo": ["54527ac44bdc2d36668b4567"]
   },
-  "trophy": { "item": "59e3658a86f7741776641ac4", "chance": 100 }
+  "trophies": [
+    { "item": "59e3658a86f7741776641ac4", "chance": 100, "min": 1, "max": 3 },
+    { "item": "6638a5474e92f038531e210e", "chance": 5, "min": 1, "max": 1 },
+    { "item": "6841b1ff51bf8645f7067bca", "chance": 20, "min": 1, "max": 1 },
+    { "item": "59e3639286f7741777737013", "chance": 10, "min": 1, "max": 1 }
+  ]
 }
