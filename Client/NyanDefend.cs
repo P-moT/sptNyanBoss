@@ -230,7 +230,7 @@ internal class NyanDefendState
 // makes him avoidable.
 public class NyanDefendLayer : CustomLayer
 {
-    private const float ReturnMargin = 1.25f; // Stops him flicking between fighting and returning right on the boundary
+    internal const float ReturnMargin = 1.25f; // Stops him flicking between fighting and returning right on the boundary
     private const float ProvokedLeash = 2f;
 
     private readonly NyanDefendState _state;
@@ -283,7 +283,7 @@ public class NyanDefendLayer : CustomLayer
 
 public class NyanPatrolLogic : CustomLogic
 {
-    private const int PickAttempts = 8;
+    private const int PickAttempts = 12;
     private const float SampleRange = 6f;
     private const float ReachDistance = 3f;
     private const float RetryDelay = 0.5f;
@@ -291,8 +291,12 @@ public class NyanPatrolLogic : CustomLogic
 
     private readonly NyanDefendState _state;
     private readonly SainCombatFlag _sainCombatFlag;
+    private readonly NavMeshPath _path = new NavMeshPath();
+    private const int MaxFailedPicks = 3;
+
     private Vector3 _target;
     private float _nextPick;
+    private int _failedPicks;
 
     public NyanPatrolLogic(BotOwner botOwner)
         : base(botOwner)
@@ -335,16 +339,35 @@ public class NyanPatrolLogic : CustomLogic
     {
         _nextPick = Time.time + RetryDelay;
         NyanPoi poi = _state.Current;
+
+        // Two points inside the circle can still be joined by a route that goes round a wall far outside it.
+        // While he is inside, only routes that stay inside are taken; when he is outside any route back will do.
+        float limit = poi.Radius * NyanDefendLayer.ReturnMargin;
+        // A circle split by walls may have no such route, so after a few empty rounds he takes any rather than stand still
+        bool inside = Flat(BotOwner.Position - poi.Position) <= limit && _failedPicks < MaxFailedPicks;
+        _failedPicks++;
         for (int i = 0; i < PickAttempts; i++)
         {
             Vector2 offset = UnityEngine.Random.insideUnitCircle * poi.Radius;
             Vector3 candidate = poi.Position + new Vector3(offset.x, 0f, offset.y);
-            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, SampleRange, NavMesh.AllAreas)
-                && BotOwner.GoToPoint(hit.position, slowAtTheEnd: false, reachDist: ReachDistance) == NavMeshPathStatus.PathComplete)
+            if (!NavMesh.SamplePosition(candidate, out NavMeshHit hit, SampleRange, NavMesh.AllAreas)
+                || !NavMesh.CalculatePath(BotOwner.Position, hit.position, NavMesh.AllAreas, _path)
+                || _path.status != NavMeshPathStatus.PathComplete
+                || inside && _path.corners.Any(corner => Flat(corner - poi.Position) > limit))
+            {
+                continue;
+            }
+            if (BotOwner.GoToPoint(hit.position, slowAtTheEnd: false, reachDist: ReachDistance) == NavMeshPathStatus.PathComplete)
             {
                 _target = hit.position;
+                _failedPicks = 0;
                 return;
             }
         }
+    }
+
+    private static float Flat(Vector3 offset)
+    {
+        return new Vector2(offset.x, offset.z).magnitude;
     }
 }

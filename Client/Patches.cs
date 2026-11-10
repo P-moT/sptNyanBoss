@@ -15,7 +15,8 @@ namespace NyanBoss.Client;
 
 internal static class NyanRole
 {
-    private const WildSpawnType Role = WildSpawnType.bossTest;
+    internal const WildSpawnType Type = WildSpawnType.bossTest;
+    private const WildSpawnType Role = Type;
 
     internal static bool Is(Player player)
     {
@@ -65,15 +66,16 @@ public class BrainSwapPatch : ModulePatch
         if (NyanRole.Is(bot))
         {
             Plugin.Log.LogInfo($"Boss activated: {bot.Profile.Nickname}, brain {__instance.BaseBrain?.ShortName()}, position {bot.Position}");
-            // An exception here would break the bot's brain, and music or a trail isn't worth that
+            // An exception here would break the bot's brain, and music, a trail or a pastry isn't worth that
             try
             {
                 NyanMusic.Attach(bot.GetPlayer);
                 NyanTrail.Attach(bot.GetPlayer);
+                NyanPoptart.Attach(bot.GetPlayer);
             }
             catch (System.Exception ex)
             {
-                Plugin.Log.LogError($"Could not attach music or trail: {ex}");
+                Plugin.Log.LogError($"Could not attach music, trail or pop-tart: {ex}");
             }
         }
     }
@@ -155,6 +157,78 @@ public class SpeedPatch : ModulePatch
         sample.Time = 0f;
         sample.BaseDistance = 0f;
         sample.LastPosition = position;
+    }
+}
+
+// Answering "enemy" for any pairing of him with another bot makes him fight all AI and all AI fight him, so a player is
+// never up against him and the scavs together. Human players keep the vanilla answer. SAIN reads the result through the
+// same groups. The game asks two different questions, so both are patched:
+//  - HostilityPatch: existing groups asking about a bot that has just spawned
+//  - SpawnHostilityPatch: a new group asking about every bot already in the raid
+internal static class NyanHostility
+{
+    internal static bool Applies(WildSpawnType groupRole, BotOwner other)
+    {
+        return Plugin.HostileToAI.Value && other != null && (groupRole == NyanRole.Type || NyanRole.Is(other));
+    }
+
+    internal static void Log(WildSpawnType groupRole, BotOwner other)
+    {
+        if (Plugin.HostilityLogging.Value)
+        {
+            Plugin.Log.LogInfo($"Hostility: {groupRole} group now treats {other.Profile.Info.Settings.Role} {other.Profile.Nickname} as an enemy");
+        }
+    }
+}
+
+public class SpawnHostilityPatch : ModulePatch
+{
+    protected override MethodBase GetTargetMethod()
+    {
+        return AccessTools.Method(typeof(BotsList), nameof(BotsList.IsEnemyBySettings));
+    }
+
+    [PatchPostfix]
+    public static void Postfix(BotOwner botToCheck, BotOwner owner, ref bool __result)
+    {
+        if (__result || owner == null || botToCheck == null || botToCheck == owner)
+        {
+            return;
+        }
+        WildSpawnType ownerRole = owner.Profile.Info.Settings.Role;
+        if (NyanHostility.Applies(ownerRole, botToCheck))
+        {
+            __result = true;
+            NyanHostility.Log(ownerRole, botToCheck);
+        }
+    }
+}
+
+public class HostilityPatch : ModulePatch
+{
+    protected override MethodBase GetTargetMethod()
+    {
+        return AccessTools.Method(typeof(BotsGroup), nameof(BotsGroup.IsPlayerEnemy));
+    }
+
+    [PatchPostfix]
+    public static void Postfix(BotsGroup __instance, IPlayer player, ref bool __result)
+    {
+        if (__result || player == null || !player.IsAI)
+        {
+            return;
+        }
+
+        BotOwner other = player.AIData?.BotOwner;
+        if (other == null || other.BotsGroup == __instance)
+        {
+            return;
+        }
+        if (NyanHostility.Applies(__instance.InitialBotType, other))
+        {
+            __result = true;
+            NyanHostility.Log(__instance.InitialBotType, other);
+        }
     }
 }
 

@@ -5,5 +5,28 @@
     "bigmap": { "chance": 100, "zone": "ZoneScavBase" },
     "factory4_day": { "chance": 0, "zone": "BotZone" },
     "factory4_night": { "chance": 0, "zone": "BotZone" }
-  }
+  },
+  "health": {
+    "Head": 50,
+    "Chest": 140,
+    "Stomach": 120,
+    "LeftArm": 80,
+    "RightArm": 80,
+    "LeftLeg": 100,
+    "RightLeg": 100
+  },
+  "loadout": {
+    "equipment": {
+      "FirstPrimaryWeapon": ["618428466ef05c2ce828f218"],
+      "ArmorVest": ["5ca21c6986f77479963115a7"],
+      "TacticalVest": ["628baf0b967de16aab5a4f36"],
+      "Backpack": ["5ab8ebf186f7742d8b372e80"],
+      "Eyewear": ["5d6d2ef3a4b93618084f58bd"],
+      "Headwear": [],
+      "FaceCover": []
+    },
+    "weaponPresets": ["619e61e70459e93c12392ba7"],
+    "ammo": ["54527ac44bdc2d36668b4567"]
+  },
+  "trophy": { "item": "59e3658a86f7741776641ac4", "chance": 100 }
 }

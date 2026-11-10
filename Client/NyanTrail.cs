@@ -73,7 +73,7 @@ internal class NyanTrail : MonoBehaviour
         player.OnPlayerDeadOrUnspawn += _ => trail._owner = null;
     }
 
-    private static Material GetMaterial()
+    internal static Material GetMaterial()
     {
         if (_material != null)
         {
