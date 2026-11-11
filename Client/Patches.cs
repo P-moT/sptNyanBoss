@@ -97,6 +97,7 @@ public class SpeedPatch : ModulePatch
     private static readonly AccessTools.FieldRef<MovementContext, Player> PlayerRef =
         AccessTools.FieldRefAccess<MovementContext, Player>("_player");
     private static readonly ConditionalWeakTable<MovementContext, Sample> Samples = new ConditionalWeakTable<MovementContext, Sample>();
+    private static bool _loggedFailure;
 
     protected override MethodBase GetTargetMethod()
     {
@@ -114,7 +115,20 @@ public class SpeedPatch : ModulePatch
 
         if (Plugin.SpeedLogging.Value)
         {
-            Record(__instance, player, motion, deltaTime);
+            // Logging must never get in the way of the movement itself
+            try
+            {
+                Record(__instance, player, motion, deltaTime);
+            }
+            catch (System.Exception ex)
+            {
+                // Once in full, so a recurring failure can be traced without flooding the log
+                if (!_loggedFailure)
+                {
+                    Plugin.Log.LogWarning($"Speed logging failed, further failures are not logged: {ex}");
+                    _loggedFailure = true;
+                }
+            }
         }
 
         // Grounded movement only, so jumps, vaults and ladders keep their normal arcs
@@ -147,11 +161,15 @@ public class SpeedPatch : ModulePatch
         float baseline = sample.BaseDistance / sample.Time;
         BotOwner bot = player.AIData?.BotOwner;
         NyanDefendState defend = bot != null ? NyanDefendState.For(bot) : null;
-        string area = defend != null && defend.HasPois
+        string area = defend != null && defend.HasPois && defend.Current != null
             ? $", {defend.Current.Name} {Vector3.Distance(position, defend.Current.Position):F0}m away"
             : string.Empty;
+        // A killed or despawned enemy can stay as the goal for a moment with nothing behind it
+        // Its position is read through the enemy itself, so that is only asked for while the enemy is still there
         string enemy = bot?.Memory?.GoalEnemy is EnemyInfo goal
-            ? $"{goal.Person.Profile?.Nickname} {Vector3.Distance(position, goal.CurrPosition):F0}m away"
+            ? goal.Person != null
+                ? $"{goal.Person.Profile?.Nickname} {Vector3.Distance(position, goal.Person.Position):F0}m away"
+                : "gone"
             : "none";
         Plugin.Log.LogInfo($"Speed: requested {baseline:F1} m/s, travelled {actual:F1} m/s, state {context.CurrentState.Name}, layer {(bot != null ? BrainManager.GetActiveLayerName(bot) : "unknown")}{area}, enemy {enemy}, path {bot?.Mover?.HasPathAndNoComplete}, sprint order {bot?.Mover?.Sprinting}, can sprint {player.Physical?.CanSprint}");
         sample.Time = 0f;

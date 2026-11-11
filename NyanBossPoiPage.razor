@@ -43,7 +43,7 @@
 <div class="nyan-page">
     <div>
         <MudText Typo="Typo.h5">NyanBoss POIs</MudText>
-        <MudText Typo="Typo.body2">Set how likely he is to spawn on each map, then place the circles he spawns in and patrols. Each POI's weight sets how often he picks it, both when he spawns and each time he moves on. Drag a circle to move it, or drag the handle on its right edge to resize it. Saved changes apply from the next raid, without restarting the game.</MudText>
+        <MudText Typo="Typo.body2">Set how likely he is to spawn on each map, then place the circles he spawns in and patrols. Each POI's weight sets how often he picks it, both when he spawns and, with Travel between POIs ticked, each time he moves on. Drag a circle to move it, or drag the handle on its right edge to resize it. Saved changes apply from the next raid, without restarting the game.</MudText>
     </div>
 
     @if (Store.LoadError != null)
@@ -70,6 +70,8 @@
         <MudNumericField T="double" Label="Spawn chance (%)" Value="CurrentMap.Chance" ValueChanged="SetChance" Min="0" Max="100" Step="5"
                          Variant="Variant.Outlined" Margin="Margin.Dense" Style="width: 150px"
                          HelperText="@(CurrentMap.Chance <= 0 ? "He won't spawn here" : null)" />
+        <MudCheckBox T="bool" Value="CurrentMap.Travel" ValueChanged="SetTravel" Label="Travel between POIs" Color="Color.Primary"
+                     title="On, he moves to a different POI every few minutes (PoiRotationSeconds in F12). Off, he defends the POI he spawned in until he dies." />
         <MudSelect T="double" Label="Zoom" @bind-Value="_zoom" Variant="Variant.Outlined" Dense="true" Style="min-width: 110px">
             <MudSelectItem T="double" Value="1d">100%</MudSelectItem>
             <MudSelectItem T="double" Value="2d">200%</MudSelectItem>
@@ -332,6 +334,12 @@
     private void SetChance(double chance)
     {
         CurrentMap.Chance = Math.Clamp(Math.Round(chance), 0, 100);
+        _dirty = true;
+    }
+
+    private void SetTravel(bool travel)
+    {
+        CurrentMap.Travel = travel;
         _dirty = true;
     }
 

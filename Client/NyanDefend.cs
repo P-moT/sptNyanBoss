@@ -30,12 +30,19 @@ public class NyanPoi
     public Vector3 Position => new Vector3(X, Y, Z);
 }
 
+// One map's settings from the SIC page. The server sends its spawn chance and zone too, which the client doesn't need.
+public class NyanMap
+{
+    public bool Travel = true;
+    public List<NyanPoi> Pois = new List<NyanPoi>();
+}
+
 // POIs are owned by the server, so edits made on the SIC page reach the next raid without restarting the game
 internal static class NyanPois
 {
-    private const string Route = "/nyanboss/pois";
+    private const string Route = "/nyanboss/maps";
 
-    internal static List<NyanPoi> ForCurrentMap()
+    internal static NyanMap ForCurrentMap()
     {
         string map = Singleton<GameWorld>.Instance?.LocationId;
         if (map == null)
@@ -45,9 +52,9 @@ internal static class NyanPois
 
         try
         {
-            var byMap = JsonConvert.DeserializeObject<Dictionary<string, List<NyanPoi>>>(RequestHandler.GetJson(Route));
-            var lookup = new Dictionary<string, List<NyanPoi>>(byMap, StringComparer.OrdinalIgnoreCase);
-            return lookup.TryGetValue(map, out List<NyanPoi> pois) ? pois : null;
+            var byMap = JsonConvert.DeserializeObject<Dictionary<string, NyanMap>>(RequestHandler.GetJson(Route));
+            var lookup = new Dictionary<string, NyanMap>(byMap, StringComparer.OrdinalIgnoreCase);
+            return lookup.TryGetValue(map, out NyanMap settings) ? settings : null;
         }
         catch (Exception ex)
         {
@@ -108,6 +115,7 @@ internal class NyanDefendState
     private const float EyeHeight = 1.5f;
 
     private readonly List<NyanPoi> _pois;
+    private readonly bool _travel;
     private int _current;
     private float _nextRotation;
     private bool _placed;
@@ -116,13 +124,16 @@ internal class NyanDefendState
 
     private NyanDefendState(BotOwner bot)
     {
-        _pois = NyanPois.ForCurrentMap();
+        NyanMap map = NyanPois.ForCurrentMap();
+        _pois = map?.Pois;
+        _travel = map?.Travel ?? true;
         if (HasPois)
         {
             _current = PickWeighted(-1);
             _nextRotation = Time.time + Plugin.PoiRotationSeconds.Value;
             bot.GetPlayer.BeingHitAction += (_, _, _) => ProvokedUntil = Time.time + Plugin.ProvokedSeconds.Value;
-            Plugin.Log.LogInfo($"Defending {Current.Name} of {_pois.Count} POI(s) on {Singleton<GameWorld>.Instance.LocationId}");
+            string travel = _travel ? "travels between them" : "stays there all raid";
+            Plugin.Log.LogInfo($"Defending {Current.Name} of {_pois.Count} POI(s) on {Singleton<GameWorld>.Instance.LocationId}, {travel}");
         }
         else
         {
@@ -216,7 +227,7 @@ internal class NyanDefendState
 
     internal void RotateIfDue()
     {
-        if (_pois.Count < 2 || Time.time < _nextRotation)
+        if (!_travel || _pois.Count < 2 || Time.time < _nextRotation)
         {
             return;
         }
@@ -264,7 +275,6 @@ internal class NyanDefendState
 public class NyanDefendLayer : CustomLayer
 {
     internal const float ReturnMargin = 1.25f; // Stops him flicking between fighting and returning right on the boundary
-    private const float ProvokedLeash = 2f;
 
     private readonly NyanDefendState _state;
 
@@ -290,9 +300,10 @@ public class NyanDefendLayer : CustomLayer
 
         NyanPoi poi = _state.Current;
         float distanceFromPoi = Vector3.Distance(BotOwner.Position, poi.Position);
+        // Shot recently: he fights back wherever he is, including on his way to another POI, then returns once it wears off
         if (Time.time < _state.ProvokedUntil)
         {
-            return distanceFromPoi > poi.Radius * ProvokedLeash;
+            return false;
         }
         if (distanceFromPoi > poi.Radius * ReturnMargin)
         {

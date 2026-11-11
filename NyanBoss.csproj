@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
-    <Version>0.7.6</Version>
+    <Version>0.8.5</Version>
     <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
@@ -40,7 +40,7 @@
       <PackageModFolder>$(PackageStaging)SPT_Runtime\user\mods\$(AssemblyName)\</PackageModFolder>
     </PropertyGroup>
     <RemoveDir Directories="$(PackageStaging)" />
-    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll;$(OutputPath)config.json;$(OutputPath)pois.default.json;$(MSBuildProjectDirectory)\LICENSE" DestinationFolder="$(PackageModFolder)" />
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll;$(OutputPath)config.json;$(OutputPath)pois.default.json;$(MSBuildProjectDirectory)\LICENSE;$(MSBuildProjectDirectory)\ATTRIBUTION.md" DestinationFolder="$(PackageModFolder)" />
     <!-- Map images are licensed separately: their licence and attribution live in the same folder -->
     <ItemGroup>
       <MapFile Include="wwwroot\maps\*" />
@@ -55,7 +55,7 @@
     <MSBuild Projects="Client\NyanBoss.Client.csproj" Properties="Configuration=Release;IsRestoring=true" Targets="Restore" />
     <MSBuild Projects="Client\NyanBoss.Client.csproj" Properties="Configuration=Release" Targets="Build" />
     <Copy SourceFiles="Client\bin\Release\NyanBoss.Client.dll" DestinationFolder="$(PackageStaging)BepInEx\plugins\$(AssemblyName)\" />
-    <!-- Song for local builds. Not cleared for public release: build with -p:IncludeMusic=false for anything published -->
+    <!-- The boss's song, included by default. -p:IncludeMusic=false builds a package without it (see ATTRIBUTION.md) -->
     <Copy SourceFiles="Client\nyan.ogg" DestinationFolder="$(PackageStaging)BepInEx\plugins\$(AssemblyName)\" Condition="'$(IncludeMusic)' != 'false' And Exists('Client\nyan.ogg')" />
     <MakeDir Directories="$(MSBuildProjectDirectory)\dist" />
     <ZipDirectory SourceDirectory="$(PackageStaging)" DestinationFile="$(MSBuildProjectDirectory)\dist\$(AssemblyName)-$(Version).zip" Overwrite="true" />

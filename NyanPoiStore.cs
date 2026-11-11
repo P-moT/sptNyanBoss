@@ -36,11 +36,14 @@ public class NyanMapSettings
     public double Chance { get; set; }
     // The bot zone the game spawns him in before he is moved into a POI. Left empty, the zone nearest the POIs is used.
     public string? Zone { get; set; }
+    // Whether he moves between POIs during the raid. Off, he defends the one he spawned in until he dies.
+    // Older pois.json files don't have it, so it starts on, as he behaved before it existed.
+    public bool Travel { get; set; } = true;
     public List<NyanPoi> Pois { get; set; } = new();
 
     public NyanMapSettings Clone()
     {
-        return new NyanMapSettings { Chance = Chance, Zone = Zone, Pois = Pois.Select(poi => poi.Clone()).ToList() };
+        return new NyanMapSettings { Chance = Chance, Zone = Zone, Travel = Travel, Pois = Pois.Select(poi => poi.Clone()).ToList() };
     }
 }
 
@@ -97,15 +100,6 @@ public class NyanPoiStore
         lock (_lock)
         {
             return _maps.TryGetValue(location, out NyanMapSettings? settings) ? settings.Clone() : null;
-        }
-    }
-
-    // What the client asks for: each map's POIs, the same shape as before spawn chances moved here
-    public Dictionary<string, List<NyanPoi>> GetPoisByMap()
-    {
-        lock (_lock)
-        {
-            return _maps.ToDictionary(pair => pair.Key, pair => pair.Value.Pois.Select(poi => poi.Clone()).ToList(), StringComparer.OrdinalIgnoreCase);
         }
     }
 
@@ -237,11 +231,11 @@ public class NyanPoiStore
     }
 }
 
-// The client fetches its POIs from here when the boss spawns
+// The client fetches each map's settings from here when the boss spawns: its POIs and whether he travels between them
 [Injectable]
 public class NyanPoiRouter(JsonUtil jsonUtil, HttpResponseUtil httpResponseUtil, NyanPoiStore store) : StaticRouter(jsonUtil,
 [
-    new RouteAction("/nyanboss/pois",
+    new RouteAction("/nyanboss/maps",
         (string url, IRequestData info, MongoId sessionId, string? output, CancellationToken cancellationToken) =>
-            new ValueTask<object>(httpResponseUtil.NoBody(store.GetPoisByMap()))),
+            new ValueTask<object>(httpResponseUtil.NoBody(store.GetAll()))),
 ]);

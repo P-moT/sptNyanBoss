@@ -6,6 +6,13 @@
                 "shaders",
                 "cubemaps"
             ]
+        },
+        {
+            "key": "nyanboss/patron_556x45_nyan.bundle",
+            "dependencyKeys": [
+                "shaders",
+                "cubemaps"
+            ]
         }
     ]
 }

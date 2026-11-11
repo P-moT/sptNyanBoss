@@ -17,6 +17,9 @@ using SPTarkov.Server.Core.Models.Enums;
 using Preset = SPTarkov.Server.Core.Models.Spt.Tables.Preset;
 using Prefab = SPTarkov.Server.Core.Models.Eft.Common.Tables.Prefab;
 using TemplateItemProperties = SPTarkov.Server.Core.Models.Eft.Common.Tables.TemplateItemProperties;
+using TemplateItem = SPTarkov.Server.Core.Models.Eft.Common.Tables.TemplateItem;
+using Slot = SPTarkov.Server.Core.Models.Eft.Common.Tables.Slot;
+using SlotFilter = SPTarkov.Server.Core.Models.Eft.Common.Tables.SlotFilter;
 using SPTarkov.Server.Core.Services.Modding.Custom;
 using SPTarkov.Server.Core.Helpers.Bot;
 using SPTarkov.Server.Core.Generators.Loot;
@@ -39,7 +42,7 @@ public record ModMetadata : IModMetadata, IModBlazorMetadata
     public string Name { get; init; } = "NyanBoss";
     public string Author { get; init; } = "P_moT";
     public List<string>? Contributors { get; init; }
-    public SemanticVersioning.Version Version { get; init; } = new("0.7.6");
+    public SemanticVersioning.Version Version { get; init; } = new("0.8.5");
     public SemanticVersioning.Range SptVersion { get; init; } = new("4.1.6");
     public List<string>? Incompatibilities { get; init; }
     public Dictionary<string, SemanticVersioning.Range>? ModDependencies { get; init; }
@@ -81,6 +84,9 @@ public class NyanBossLoadout
     public List<string> WeaponPresets { get; set; } = new();
     // Replaces the ammo for each of these rounds' calibers
     public List<string> Ammo { get; set; } = new();
+    // Spare magazines for each of his guns, not counting the one loaded, as count to weight. Left out, he keeps the gear
+    // source's. Applies to the pistol too, which takes rig space first only if there is room left.
+    public Dictionary<int, double>? Magazines { get; set; }
 }
 
 // Rolled on its own for every boss: Chance percent to drop, then Min to Max copies
@@ -103,11 +109,141 @@ internal static class NyanItems
 {
     internal const string UlachTpl = "6a5c9d1e7f3b2a4c8d0e1f21";
     private const string VanillaUlachBlack = "5b40e1525acfc4771e1c6611";
+    // The client draws a rainbow behind this round in flight, by this id
+    internal const string RoundTpl = "6a5c9d1e7f3b2a4c8d0e1f22";
+    private const string VanillaM855A1 = "54527ac44bdc2d36668b4567";
 
     // Custom item to the vanilla item it copies, so its armour plates can be borrowed from bots that wear the original
     internal static readonly Dictionary<string, string> CloneSources = new() { [UlachTpl] = VanillaUlachBlack };
 
-    internal static void Create(CustomItemService customItems, ISptLogger<NyanItemsLoader> logger)
+    internal static void Create(CustomItemService customItems, TemplateTable templates, GlobalTable globals, ISptLogger<NyanItemsLoader> logger)
+    {
+        CreateUlach(customItems, templates, logger);
+        AddStandardPreset(globals, VanillaUlachBlack, UlachTpl, "Helmet ULACH Nyan Standard", "6a5c9d1e7f3b2a4c8d0e1f4", logger);
+        CreateRound(customItems, templates, logger);
+    }
+
+    private static void CreateRound(CustomItemService customItems, TemplateTable templates, ISptLogger<NyanItemsLoader> logger)
+    {
+        var details = new NewItemFromCloneDetails
+        {
+            ItemTplToClone = VanillaM855A1,
+            NewId = RoundTpl,
+            NewItemName = "patron_556x45_nyan",
+            ParentId = "5485a8684bdc2da71d8b4567",
+            HandbookParentId = "5b47574386f77428ca22b33b",
+            HandbookPriceRoubles = 710,
+            FleaPriceRoubles = 710,
+            OverrideProperties = new TemplateItemProperties
+            {
+                BackgroundColor = "violet",
+                // The M855A1 model with a rainbow-painted tip
+                Prefab = new Prefab { Path = "nyanboss/patron_556x45_nyan.bundle", Rcid = "" },
+            },
+            Locales = new Dictionary<string, LocaleDetails>
+            {
+                ["en"] = new()
+                {
+                    Name = "5.56x45mm Nyan",
+                    ShortName = "Nyan",
+                    Description = "An M855A1 cartridge, hand-loaded by a very particular cat. It hits exactly as hard as the original, but leaves a rainbow behind it on the way.",
+                },
+            },
+        };
+        var result = customItems.CreateItemFromClone(details, Assembly.GetExecutingAssembly());
+        if (result.Success != true)
+        {
+            logger.Error($"[NyanBoss] Could not create the Nyan round: {string.Join("; ", result.Errors ?? [])}");
+            return;
+        }
+
+        // Magazines and chambers list each round they take by id, so a copy fits nowhere until it is added beside the
+        // original. Ammo boxes are left alone: a box of M855A1 still holds M855A1.
+        var original = new MongoId(VanillaM855A1);
+        var copy = new MongoId(RoundTpl);
+        int added = 0;
+        foreach (TemplateItem item in templates.Items.Values)
+        {
+            IEnumerable<Slot> slots = (item.Properties?.Cartridges ?? []).Concat(item.Properties?.Chambers ?? []);
+            foreach (Slot slot in slots)
+            {
+                foreach (SlotFilter filter in slot.Properties?.Filters ?? [])
+                {
+                    if (filter.Filter != null && filter.Filter.Contains(original) && filter.Filter.Add(copy))
+                    {
+                        added++;
+                    }
+                }
+            }
+        }
+        logger.Info($"[NyanBoss] Nyan round accepted by {added} magazines and chambers");
+    }
+
+    // A clone keeps the original's slots, ids and parent included, so the game sees two items claiming the same slots and
+    // drops whatever sits in the copy's, which for a helmet is all of its armour. Every vanilla item has slots of its own,
+    // so the copy gets fixed new ids that point back at it.
+    private static void GiveOwnSlots(TemplateTable templates, string tpl, string slotIdPrefix, ISptLogger<NyanItemsLoader> logger)
+    {
+        if (!templates.Items.TryGetValue(new MongoId(tpl), out TemplateItem? item) || item.Properties?.Slots == null)
+        {
+            return;
+        }
+        var slots = item.Properties.Slots.ToList();
+        if (slots.Count > 16)
+        {
+            logger.Error($"[NyanBoss] {tpl} has {slots.Count} slots, more than its reserved slot ids");
+            return;
+        }
+        item.Properties.Slots = slots
+            .Select((slot, index) => slot with { Id = new MongoId(slotIdPrefix + index.ToString("x")), Parent = new MongoId(tpl) })
+            .ToList();
+    }
+
+    // Anything that makes an item from nothing, such as the give command, a trader or a quest reward, fills its slots from
+    // the item's standard preset. A copy has none, so it would arrive without its built-in armour.
+    internal static void AddStandardPreset(GlobalTable globals, string originalTpl, string tpl, string name, string idPrefix, ISptLogger<NyanItemsLoader> logger)
+    {
+        Preset? original = globals.ItemPresets.Values.FirstOrDefault(preset => preset.Encyclopedia == new MongoId(originalTpl));
+        if (original == null)
+        {
+            logger.Warning($"[NyanBoss] No standard preset found for {originalTpl}, so {tpl} has none either");
+            return;
+        }
+        if (original.Items.Count > 15)
+        {
+            logger.Error($"[NyanBoss] The preset for {originalTpl} has more items than {tpl}'s reserved ids");
+            return;
+        }
+
+        // Fixed ids, so a preset id saved anywhere stays valid across restarts
+        var newIds = new Dictionary<string, MongoId>();
+        for (int i = 0; i < original.Items.Count; i++)
+        {
+            newIds[original.Items[i].Id.ToString()] = new MongoId(idPrefix + (i + 1).ToString("x"));
+        }
+        var items = original.Items.Select(item => new Item
+        {
+            Id = newIds[item.Id.ToString()],
+            Template = item.Template == new MongoId(originalTpl) ? new MongoId(tpl) : item.Template,
+            ParentId = item.ParentId != null && newIds.TryGetValue(item.ParentId, out MongoId parent) ? parent.ToString() : item.ParentId,
+            SlotId = item.SlotId,
+            Upd = item.Upd,
+        }).ToList();
+
+        var presetId = new MongoId(idPrefix + "0");
+        globals.ItemPresets[presetId] = new Preset
+        {
+            Id = presetId,
+            Name = name,
+            Parent = newIds[original.Parent.ToString()],
+            Type = original.Type,
+            Encyclopedia = new MongoId(tpl),
+            ChangeWeaponName = original.ChangeWeaponName,
+            Items = items,
+        };
+    }
+
+    private static void CreateUlach(CustomItemService customItems, TemplateTable templates, ISptLogger<NyanItemsLoader> logger)
     {
         var details = new NewItemFromCloneDetails
         {
@@ -136,17 +272,19 @@ internal static class NyanItems
         if (result.Success != true)
         {
             logger.Error($"[NyanBoss] Could not create the Nyan ULACH: {string.Join("; ", result.Errors ?? [])}");
+            return;
         }
+        GiveOwnSlots(templates, UlachTpl, "6a5c9d1e7f3b2a4c8d0e1f3", logger);
     }
 }
 
 // The server refuses new items once player profiles have loaded, so they go in right after the database, well before the boss
 [Injectable(TypePriority = OnLoadOrder.TraderRegistration + 1)]
-public class NyanItemsLoader(ISptLogger<NyanItemsLoader> logger, CustomItemService customItemService) : IOnLoad
+public class NyanItemsLoader(ISptLogger<NyanItemsLoader> logger, CustomItemService customItemService, TemplateTable templateTable, GlobalTable globalTable) : IOnLoad
 {
     public Task OnLoadAsync(CancellationToken cancellationToken)
     {
-        NyanItems.Create(customItemService, logger);
+        NyanItems.Create(customItemService, templateTable, globalTable, logger);
         return Task.CompletedTask;
     }
 }
@@ -258,6 +396,18 @@ public class NyanBossLoader(
                 continue;
             }
             inventory.Ammo[caliber] = new Dictionary<MongoId, double> { [new MongoId(ammoId)] = 1 };
+        }
+
+        if (loadout.Magazines is { Count: > 0 } magazines)
+        {
+            if (magazines.Any(pair => pair.Key < 1 || pair.Value < 0) || magazines.Values.Sum() <= 0)
+            {
+                logger.Warning("[NyanBoss] Ignoring the magazine setting: counts must be at least 1, and weights 0 or more with at least one above 0");
+            }
+            else
+            {
+                botType.BotGeneration.Items.Magazines.Weights = magazines.ToDictionary(pair => (double)pair.Key, pair => pair.Value);
+            }
         }
     }
 
