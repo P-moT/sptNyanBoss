@@ -51,7 +51,7 @@ public record ModMetadata : IModMetadata, IModBlazorMetadata
     public bool HasPrepatcher { get; init; } = false;
     public string? WWWRootUrl { get; init; } = "nyanboss-static";
     public string? HomePage { get; init; } = "/nyanboss";
-    public string? HomePageDescription { get; init; } = "Place and resize the POIs Nyanislov Nyanovich defends on each map.";
+    public string? HomePageDescription { get; init; } = "Place and resize the POIs Nyanislav Nyanovich defends on each map.";
 }
 
 public class NyanBossConfig
@@ -501,8 +501,8 @@ public class NyanBossLoader(
         }
 
         var botType = cloner.Clone(source)!;
-        // The game joins these with a space, so he appears as "Nyanislov Nyanovich" in the kill feed and on his dogtag
-        botType.FirstNames = ["Nyanislov"];
+        // The game joins these with a space, so he appears as "Nyanislav Nyanovich" in the kill feed and on his dogtag
+        botType.FirstNames = ["Nyanislav"];
         botType.LastNames = ["Nyanovich"];
         ApplyHealth(botType, config.Health);
         ApplyLoadout(botType, config.Loadout, config.GearSourceBotType);
